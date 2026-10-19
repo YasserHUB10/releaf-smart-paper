@@ -17,6 +17,7 @@ import {
   Layers,
   MousePointer2,
   Square,
+  Minus,
   Move,
   Eraser,
   Download,
@@ -24,6 +25,12 @@ import {
   Check,
   AlertCircle,
   FileCheck2,
+  Bold,
+  Italic,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Palette,
 } from "lucide-react";
 
 export interface DocElement {
@@ -36,6 +43,9 @@ export interface DocElement {
   height?: number; // percentage
   fontSize?: number; // px
   fontWeight?: string;
+  fontStyle?: "normal" | "italic";
+  fontFamily?: string;
+  textAlign?: "left" | "center" | "right";
   color?: string;
   bgColor?: string;
   border?: string;
@@ -52,7 +62,10 @@ interface InteractiveDocumentCanvasProps {
   onElementsChange: (elements: DocElement[]) => void;
   activeMode: "select" | "deink-eraser" | "add-text";
   onModeChange: (mode: "select" | "deink-eraser" | "add-text") => void;
-  onSelectElement?: (el: DocElement | null) => void;
+  selectedId: string | null;
+  onSelectElement: (el: DocElement | null) => void;
+  zoom: number;
+  onZoomChange: (zoom: number) => void;
 }
 
 export default function InteractiveDocumentCanvas({
@@ -63,10 +76,11 @@ export default function InteractiveDocumentCanvas({
   onElementsChange,
   activeMode,
   onModeChange,
+  selectedId,
   onSelectElement,
+  zoom,
+  onZoomChange,
 }: InteractiveDocumentCanvasProps) {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [zoom, setZoom] = useState(1);
   const [history, setHistory] = useState<DocElement[][]>([elements]);
   const [historyIndex, setHistoryIndex] = useState(0);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -92,7 +106,7 @@ export default function InteractiveDocumentCanvas({
       const prev = history[historyIndex - 1];
       setHistoryIndex(historyIndex - 1);
       onElementsChange(prev);
-      setSelectedId(null);
+      onSelectElement(null);
     }
   };
 
@@ -101,15 +115,17 @@ export default function InteractiveDocumentCanvas({
       const next = history[historyIndex + 1];
       setHistoryIndex(historyIndex + 1);
       onElementsChange(next);
-      setSelectedId(null);
+      onSelectElement(null);
     }
   };
 
-  // Keyboard shortcuts (Delete, Backspace, Ctrl+Z, Escape)
+  // Keyboard shortcuts (Delete, Backspace, Ctrl+Z, Escape, Arrow keys for nudging)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Don't intercept if currently editing text inside an input/contenteditable
+      // Don't intercept if currently editing text inside an input or textarea
       if (editingId) return;
+      const activeTag = (document.activeElement?.tagName || "").toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea") return;
 
       if ((e.key === "Delete" || e.key === "Backspace") && selectedId) {
         e.preventDefault();
@@ -121,14 +137,32 @@ export default function InteractiveDocumentCanvas({
         } else {
           undo();
         }
+      } else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "d" && selectedId) {
+        e.preventDefault();
+        duplicateSelected();
       } else if (e.key === "Escape") {
-        setSelectedId(null);
+        onSelectElement(null);
         setEditingId(null);
+      } else if (selectedId && ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].includes(e.key)) {
+        e.preventDefault();
+        const delta = e.shiftKey ? 2 : 0.5;
+        const dx = e.key === "ArrowLeft" ? -delta : e.key === "ArrowRight" ? delta : 0;
+        const dy = e.key === "ArrowUp" ? -delta : e.key === "ArrowDown" ? delta : 0;
+        const updated = elements.map((el) =>
+          el.id === selectedId
+            ? {
+                ...el,
+                x: Math.max(0, Math.min(95, el.x + dx)),
+                y: Math.max(0, Math.min(95, el.y + dy)),
+              }
+            : el
+        );
+        pushState(updated);
       }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedId, editingId, historyIndex, history]);
+  }, [selectedId, editingId, historyIndex, history, elements]);
 
   const showToast = (msg: string) => {
     setNotification(msg);
@@ -142,8 +176,8 @@ export default function InteractiveDocumentCanvas({
 
     const updated = elements.filter((el) => el.id !== selectedId);
     pushState(updated);
-    setSelectedId(null);
-    showToast(`Element "${target.content.slice(0, 18)}..." deleted`);
+    onSelectElement(null);
+    showToast(`Element deleted from document`);
   };
 
   const markForDeinking = (id: string) => {
@@ -168,16 +202,16 @@ export default function InteractiveDocumentCanvas({
       ...target,
       id: "el-" + Date.now(),
       x: Math.min(target.x + 3, 85),
-      y: Math.min(target.y + 4, 90),
+      y: Math.min(target.y + 3, 90),
     };
 
     const updated = [...elements, newEl];
     pushState(updated);
-    setSelectedId(newEl.id);
+    onSelectElement(newEl);
     showToast("Duplicated element");
   };
 
-  const addTextElement = (type: "heading" | "text" | "subheading") => {
+  const addElement = (type: DocElement["type"]) => {
     const newEl: DocElement = {
       id: "el-" + Date.now(),
       type,
@@ -185,19 +219,26 @@ export default function InteractiveDocumentCanvas({
         type === "heading"
           ? "New Section Heading"
           : type === "subheading"
-          ? "Subheading Description"
-          : "Click to edit this text paragraph with corrections or notes.",
-      x: 18,
-      y: 20 + elements.length * 4,
-      fontSize: type === "heading" ? 22 : type === "subheading" ? 16 : 13,
+          ? "Supporting Subheading"
+          : type === "box"
+          ? ""
+          : type === "divider"
+          ? ""
+          : "Click to edit this text paragraph with your notes or updates.",
+      x: 15,
+      y: 20 + (elements.length % 8) * 6,
+      width: type === "box" ? 70 : type === "divider" ? 80 : undefined,
+      height: type === "box" ? 8 : type === "divider" ? 1 : undefined,
+      fontSize: type === "heading" ? 22 : type === "subheading" ? 15 : 13,
       fontWeight: type === "heading" ? "bold" : type === "subheading" ? "600" : "normal",
       color: "#202821",
+      bgColor: type === "box" ? "#DDE9D9" : undefined,
     };
     const updated = [...elements, newEl];
     pushState(updated);
-    setSelectedId(newEl.id);
+    onSelectElement(newEl);
     onModeChange("select");
-    showToast("Added new editable element");
+    showToast(`Added ${type} element`);
   };
 
   // Dragging logic
@@ -207,9 +248,8 @@ export default function InteractiveDocumentCanvas({
       return;
     }
     e.stopPropagation();
-    setSelectedId(id);
     const target = elements.find((el) => el.id === id);
-    if (onSelectElement) onSelectElement(target || null);
+    onSelectElement(target || null);
 
     if (sheetRef.current) {
       const rect = sheetRef.current.getBoundingClientRect();
@@ -241,7 +281,7 @@ export default function InteractiveDocumentCanvas({
     onElementsChange(updated);
   };
 
-  const handlePointerUp = (e: React.PointerEvent) => {
+  const handlePointerUp = () => {
     if (draggingId) {
       setDraggingId(null);
       pushState(elements);
@@ -251,20 +291,57 @@ export default function InteractiveDocumentCanvas({
   const selectedElement = elements.find((el) => el.id === selectedId);
   const deletedElements = elements.filter((el) => el.isDeleted);
 
+  // Text formatting toggle helpers for selected element
+  const toggleBold = () => {
+    if (!selectedId) return;
+    const updated = elements.map((el) =>
+      el.id === selectedId
+        ? { ...el, fontWeight: el.fontWeight === "bold" || el.fontWeight === "700" ? "normal" : "bold" }
+        : el
+    );
+    pushState(updated);
+  };
+
+  const toggleItalic = () => {
+    if (!selectedId) return;
+    const updated = elements.map((el) =>
+      el.id === selectedId
+        ? { ...el, fontStyle: (el.fontStyle === "italic" ? "normal" : "italic") as "normal" | "italic" }
+        : el
+    );
+    pushState(updated);
+  };
+
+  const setAlign = (align: "left" | "center" | "right") => {
+    if (!selectedId) return;
+    const updated = elements.map((el) => (el.id === selectedId ? { ...el, textAlign: align } : el));
+    pushState(updated);
+  };
+
+  const setFontSize = (delta: number) => {
+    if (!selectedId) return;
+    const updated = elements.map((el) =>
+      el.id === selectedId
+        ? { ...el, fontSize: Math.max(8, Math.min(64, (el.fontSize || 14) + delta)) }
+        : el
+    );
+    pushState(updated);
+  };
+
   return (
-    <div className="flex flex-col h-full bg-[#0F1412] rounded-2xl border border-white/10 shadow-2xl overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#0D1210] rounded-2xl border border-white/10 shadow-2xl overflow-hidden select-none">
       {/* ── Studio Top Toolbar (Canva/Figma style) ── */}
-      <div className="flex items-center justify-between px-4 py-2.5 bg-[#17211B] border-b border-white/10 text-white flex-wrap gap-2 z-20">
+      <div className="flex items-center justify-between px-4 py-2 bg-[#151D18] border-b border-white/10 text-white flex-wrap gap-2 z-20 shrink-0">
         {/* Left: Mode Switchers & Tools */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => onModeChange("select")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeMode === "select"
                 ? "bg-primary text-white shadow-sm ring-1 ring-lime/40"
                 : "text-sage/70 hover:bg-white/5 hover:text-white"
             }`}
-            title="Select & Move elements (Click or drag)"
+            title="Select & Move elements (V)"
           >
             <MousePointer2 className="w-3.5 h-3.5" />
             <span>Select</span>
@@ -272,7 +349,7 @@ export default function InteractiveDocumentCanvas({
 
           <button
             onClick={() => onModeChange("deink-eraser")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
               activeMode === "deink-eraser"
                 ? "bg-amber-600 text-white shadow-sm ring-1 ring-amber-300"
                 : "text-sage/70 hover:bg-white/5 hover:text-white"
@@ -287,62 +364,137 @@ export default function InteractiveDocumentCanvas({
 
           {/* Quick Add items */}
           <button
-            onClick={() => addTextElement("heading")}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-sage/80 hover:bg-white/5 hover:text-white transition-all"
+            onClick={() => addElement("heading")}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-sage/80 hover:bg-white/10 hover:text-white transition-all"
             title="Add heading element"
           >
             <Heading1 className="w-3.5 h-3.5 text-lime" />
             <span>Heading</span>
           </button>
           <button
-            onClick={() => addTextElement("text")}
-            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-sage/80 hover:bg-white/5 hover:text-white transition-all"
+            onClick={() => addElement("text")}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-sage/80 hover:bg-white/10 hover:text-white transition-all"
             title="Add text paragraph"
           >
             <Type className="w-3.5 h-3.5 text-lime" />
             <span>Text</span>
           </button>
+          <button
+            onClick={() => addElement("box")}
+            className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-medium text-sage/80 hover:bg-white/10 hover:text-white transition-all"
+            title="Add highlight container box"
+          >
+            <Square className="w-3.5 h-3.5 text-lime" />
+            <span>Shape</span>
+          </button>
         </div>
 
-        {/* Center: Selected Element Operations */}
+        {/* Center: Selected Element Rich Formatting Bar (Shows when element selected) */}
         <div className="flex items-center gap-1">
           {selectedElement ? (
-            <div className="flex items-center gap-1 bg-black/40 px-2 py-1 rounded-xl border border-white/10 animate-in fade-in zoom-in-95 duration-150">
-              <span className="text-[11px] text-lime font-mono px-1 truncate max-w-[120px]">
-                {selectedElement.content.slice(0, 16)}...
+            <div className="flex items-center gap-1.5 bg-black/50 px-2.5 py-1 rounded-xl border border-white/15 animate-in fade-in zoom-in-95 duration-150">
+              <span className="text-[11px] text-lime font-mono px-1 truncate max-w-[110px]">
+                {selectedElement.content ? `"${selectedElement.content.slice(0, 14)}..."` : selectedElement.type}
               </span>
 
+              <div className="h-3.5 w-[1px] bg-white/20 mx-0.5" />
+
+              {/* Font size +/- */}
+              {selectedElement.fontSize && (
+                <div className="flex items-center gap-1 bg-white/10 rounded px-1.5 py-0.5 text-[11px]">
+                  <button onClick={() => setFontSize(-1)} className="hover:text-lime px-1">
+                    -
+                  </button>
+                  <span className="font-mono w-5 text-center">{selectedElement.fontSize}</span>
+                  <button onClick={() => setFontSize(1)} className="hover:text-lime px-1">
+                    +
+                  </button>
+                </div>
+              )}
+
+              {/* Bold / Italic */}
               <button
-                onClick={duplicateSelected}
-                className="p-1.5 text-sage/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
-                title="Duplicate (Ctrl+D)"
+                onClick={toggleBold}
+                className={`p-1 rounded transition-colors ${
+                  selectedElement.fontWeight === "bold" || selectedElement.fontWeight === "700"
+                    ? "bg-primary text-white"
+                    : "text-sage/70 hover:text-white hover:bg-white/10"
+                }`}
+                title="Bold"
               >
-                <Copy className="w-3.5 h-3.5" />
+                <Bold className="w-3 h-3" />
               </button>
 
               <button
+                onClick={toggleItalic}
+                className={`p-1 rounded transition-colors ${
+                  selectedElement.fontStyle === "italic"
+                    ? "bg-primary text-white"
+                    : "text-sage/70 hover:text-white hover:bg-white/10"
+                }`}
+                title="Italic"
+              >
+                <Italic className="w-3 h-3" />
+              </button>
+
+              {/* Alignments */}
+              <button
+                onClick={() => setAlign("left")}
+                className={`p-1 rounded ${
+                  selectedElement.textAlign === "left" || !selectedElement.textAlign
+                    ? "text-lime bg-white/10"
+                    : "text-sage/70 hover:text-white"
+                }`}
+                title="Align Left"
+              >
+                <AlignLeft className="w-3 h-3" />
+              </button>
+              <button
+                onClick={() => setAlign("center")}
+                className={`p-1 rounded ${
+                  selectedElement.textAlign === "center" ? "text-lime bg-white/10" : "text-sage/70 hover:text-white"
+                }`}
+                title="Align Center"
+              >
+                <AlignCenter className="w-3 h-3" />
+              </button>
+
+              <div className="h-3.5 w-[1px] bg-white/20 mx-0.5" />
+
+              {/* Duplicate */}
+              <button
+                onClick={duplicateSelected}
+                className="p-1 text-sage/70 hover:text-white hover:bg-white/10 rounded transition-colors"
+                title="Duplicate (Ctrl+D)"
+              >
+                <Copy className="w-3 h-3" />
+              </button>
+
+              {/* De-ink toggle */}
+              <button
                 onClick={() => markForDeinking(selectedElement.id)}
-                className={`p-1.5 rounded-lg transition-colors ${
+                className={`p-1 rounded transition-colors ${
                   selectedElement.isDeleted
                     ? "text-amber-400 bg-amber-500/20"
                     : "text-sage/70 hover:text-amber-300 hover:bg-white/10"
                 }`}
-                title={selectedElement.isDeleted ? "Unmark de-inking" : "Mark region for ink removal"}
+                title={selectedElement.isDeleted ? "Unmark de-inking" : "Mark for de-inking removal"}
               >
-                <Eraser className="w-3.5 h-3.5" />
+                <Eraser className="w-3 h-3" />
               </button>
 
+              {/* Delete */}
               <button
                 onClick={deleteSelected}
-                className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-colors"
-                title="Delete element (Del or Backspace)"
+                className="p-1 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded transition-colors"
+                title="Delete element (Del / Backspace)"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-3 h-3" />
               </button>
             </div>
           ) : (
-            <span className="text-xs text-white/40 hidden sm:inline-block">
-              Click any element on sheet to select & delete
+            <span className="text-xs text-white/40 hidden lg:inline-block">
+              Click any element on canvas to select, move, or delete
             </span>
           )}
         </div>
@@ -369,7 +521,7 @@ export default function InteractiveDocumentCanvas({
           <div className="h-4 w-[1px] bg-white/15 mx-1" />
 
           <button
-            onClick={() => setZoom((z) => Math.max(0.6, z - 0.15))}
+            onClick={() => onZoomChange(Math.max(0.5, zoom - 0.15))}
             className="p-1.5 rounded-lg text-sage/70 hover:text-white hover:bg-white/5"
             title="Zoom out"
           >
@@ -379,47 +531,47 @@ export default function InteractiveDocumentCanvas({
             {Math.round(zoom * 100)}%
           </span>
           <button
-            onClick={() => setZoom((z) => Math.min(1.8, z + 0.15))}
+            onClick={() => onZoomChange(Math.min(1.8, zoom + 0.15))}
             className="p-1.5 rounded-lg text-sage/70 hover:text-white hover:bg-white/5"
             title="Zoom in"
           >
             <ZoomIn className="w-3.5 h-3.5" />
           </button>
           <button
-            onClick={() => setZoom(1)}
+            onClick={() => onZoomChange(1)}
             className="p-1.5 rounded-lg text-sage/70 hover:text-white hover:bg-white/5"
-            title="Reset Zoom"
+            title="Fit / Reset Zoom"
           >
             <RotateCcw className="w-3.5 h-3.5" />
           </button>
 
           <div className="h-4 w-[1px] bg-white/15 mx-1" />
 
-          {/* De-inking preview toggle */}
+          {/* De-inking heatmap preview toggle */}
           <button
             onClick={() => setShowDeinkHeatmap(!showDeinkHeatmap)}
-            className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all ${
+            className={`flex items-center gap-1 px-2 py-1 rounded-lg text-xs font-medium transition-all ${
               showDeinkHeatmap
                 ? "bg-amber-500/30 text-amber-300 border border-amber-400/40"
                 : "text-sage/70 hover:text-white hover:bg-white/5"
             }`}
-            title="Show de-inking removal areas"
+            title="Toggle simulated physical de-inking targets"
           >
             <Layers className="w-3.5 h-3.5" />
-            <span className="hidden md:inline">De-ink Heatmap</span>
+            <span className="hidden md:inline">Heatmap</span>
           </button>
         </div>
       </div>
 
-      {/* ── Sub-bar banner / hints ── */}
-      <div className="bg-[#121915] px-4 py-1.5 border-b border-white/5 flex items-center justify-between text-[11px] text-sage/60">
+      {/* ── Sub-bar: Document metadata & quick status ── */}
+      <div className="bg-[#101613] px-4 py-1.5 border-b border-white/5 flex items-center justify-between text-[11px] text-sage/60 shrink-0">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1 text-lime font-medium">
             <Sparkles className="w-3 h-3" />
-            <span>Interactive Paper Mode</span>
+            <span>Interactive Vector Canvas</span>
           </span>
           <span>•</span>
-          <span>{elements.length} elements detected</span>
+          <span>{elements.length} document items</span>
           {deletedElements.length > 0 && (
             <>
               <span>•</span>
@@ -430,27 +582,29 @@ export default function InteractiveDocumentCanvas({
           )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-white/40">Shortcut: Select + Press <kbd className="px-1.5 py-0.5 rounded bg-white/10 text-white font-mono text-[10px]">Delete</kbd></span>
+          <span className="text-white/40 hidden sm:inline">
+            Nudge: <kbd className="px-1 py-0.2 rounded bg-white/10 text-white font-mono text-[10px]">Arrow keys</kbd> • Delete: <kbd className="px-1 py-0.2 rounded bg-white/10 text-white font-mono text-[10px]">Del</kbd>
+          </span>
         </div>
       </div>
 
-      {/* ── Canvas Workspace with Grid Background ── */}
+      {/* ── Canvas Workspace with Ambient Studio Grid ── */}
       <div
         ref={containerRef}
-        onClick={() => setSelectedId(null)}
+        onClick={() => onSelectElement(null)}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
-        className="flex-1 relative overflow-auto p-8 flex items-center justify-center bg-[radial-gradient(#287a5015_1px,transparent_1px)] [background-size:20px_20px]"
+        className="flex-1 relative overflow-auto p-8 flex items-center justify-center bg-[radial-gradient(#287a501a_1px,transparent_1px)] [background-size:24px_24px]"
       >
-        {/* Floating Notification */}
+        {/* Floating Toast Notification */}
         {notification && (
-          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-forest text-lime border border-lime/30 px-3.5 py-1.5 rounded-full text-xs shadow-xl flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-forest text-lime border border-lime/30 px-4 py-1.5 rounded-full text-xs shadow-2xl flex items-center gap-2 animate-in fade-in slide-in-from-top-2 duration-150">
             <Check className="w-3.5 h-3.5" />
             <span>{notification}</span>
           </div>
         )}
 
-        {/* ── The Physical Paper Sheet (A4 Proportion Canvas) ── */}
+        {/* ── The Physical Paper Sheet (A4 Proportion: 595 x 842 pt) ── */}
         <div
           ref={sheetRef}
           onClick={(e) => e.stopPropagation()}
@@ -461,11 +615,11 @@ export default function InteractiveDocumentCanvas({
             width: "595px",
             minHeight: "842px",
           }}
-          className="relative bg-[#FCFBF7] text-[#202821] rounded-sm shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7),0_0_0_1px_rgba(0,0,0,0.08)] p-12 overflow-hidden select-none transition-shadow"
+          className="relative bg-[#FCFBF7] text-[#202821] rounded-xs shadow-[0_25px_60px_-15px_rgba(0,0,0,0.7),0_0_0_1px_rgba(0,0,0,0.12)] p-12 overflow-hidden select-none transition-shadow"
         >
           {/* Subtle paper grain & watermark motif */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.02] bg-[radial-gradient(#123B2A_1px,transparent_1px)] [background-size:8px_8px]" />
-          
+          <div className="absolute inset-0 pointer-events-none opacity-[0.025] bg-[radial-gradient(#123B2A_1px,transparent_1px)] [background-size:8px_8px]" />
+
           {/* Header watermark brand */}
           <div className="absolute top-4 right-6 flex items-center gap-1 opacity-25 text-[10px] tracking-widest font-mono uppercase text-forest">
             <span>RELEAF REUSABLE SHEET</span>
@@ -486,14 +640,75 @@ export default function InteractiveDocumentCanvas({
             const isSelected = selectedId === el.id;
             const isDeleted = el.isDeleted;
 
+            // Box / Shape element
+            if (el.type === "box") {
+              return (
+                <div
+                  key={el.id}
+                  onPointerDown={(e) => handlePointerDown(e, el.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectElement(el);
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: `${el.x}%`,
+                    top: `${el.y}%`,
+                    width: `${el.width || 70}%`,
+                    height: `${el.height || 8}%`,
+                    backgroundColor: el.bgColor || "#DDE9D9",
+                    borderRadius: "8px",
+                  }}
+                  className={`group cursor-grab active:cursor-grabbing transition-all ${
+                    isSelected
+                      ? "ring-2 ring-primary ring-offset-2 ring-offset-white shadow-md z-30"
+                      : "hover:ring-1 hover:ring-primary/40 z-10"
+                  } ${isDeleted ? "opacity-30 line-through border-2 border-dashed border-red-400" : ""}`}
+                >
+                  {isSelected && (
+                    <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-forest text-white px-2 py-0.5 rounded shadow text-[10px] flex items-center gap-1">
+                      <button onClick={deleteSelected} className="hover:text-red-400">
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            }
+
+            // Divider element
+            if (el.type === "divider") {
+              return (
+                <div
+                  key={el.id}
+                  onPointerDown={(e) => handlePointerDown(e, el.id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelectElement(el);
+                  }}
+                  style={{
+                    position: "absolute",
+                    left: `${el.x}%`,
+                    top: `${el.y}%`,
+                    width: `${el.width || 80}%`,
+                  }}
+                  className={`group cursor-grab active:cursor-grabbing py-1 ${
+                    isSelected ? "ring-2 ring-primary ring-offset-2 z-30" : "hover:opacity-75 z-10"
+                  }`}
+                >
+                  <div className="h-[1.5px] bg-charcoal/20 w-full" />
+                </div>
+              );
+            }
+
+            // Standard Text / Heading / Subheading elements
             return (
               <div
                 key={el.id}
                 onPointerDown={(e) => handlePointerDown(e, el.id)}
                 onClick={(e) => {
                   e.stopPropagation();
-                  setSelectedId(el.id);
-                  if (onSelectElement) onSelectElement(el);
+                  onSelectElement(el);
                 }}
                 onDoubleClick={(e) => {
                   e.stopPropagation();
@@ -505,6 +720,8 @@ export default function InteractiveDocumentCanvas({
                   top: `${el.y}%`,
                   fontSize: `${el.fontSize || 14}px`,
                   fontWeight: el.fontWeight || "normal",
+                  fontStyle: el.fontStyle || "normal",
+                  textAlign: el.textAlign || "left",
                   color: isDeleted ? "#9ca3af" : el.color || "#202821",
                   backgroundColor: isSelected
                     ? "rgba(40, 122, 80, 0.08)"
@@ -529,14 +746,14 @@ export default function InteractiveDocumentCanvas({
                   </span>
                 )}
 
-                {/* Canva-style Selection Handles */}
+                {/* Canva-style Corner Selection Handles */}
                 {isSelected && (
                   <>
                     <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nwse-resize" />
                     <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nesw-resize" />
                     <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nesw-resize" />
                     <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nwse-resize" />
-                    
+
                     {/* Quick Action Floating Pill (Canva style directly above element) */}
                     <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-forest text-white px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1.5 text-[11px] whitespace-nowrap z-40 border border-white/20">
                       <button
@@ -595,10 +812,10 @@ export default function InteractiveDocumentCanvas({
                         pushState(elements);
                       }
                     }}
-                    className="bg-white border border-primary px-1 py-0.5 rounded outline-none text-[#202821] font-inherit"
+                    className="bg-white border border-primary px-1.5 py-0.5 rounded outline-none text-[#202821] font-inherit min-w-[200px]"
                   />
                 ) : (
-                  <span className="leading-snug block select-none">
+                  <span className="leading-snug block select-none whitespace-pre-wrap">
                     {el.content}
                   </span>
                 )}
@@ -613,7 +830,7 @@ export default function InteractiveDocumentCanvas({
                 <Eraser className="w-3.5 h-3.5" />
                 <span>Simulated De-inking Targeting Overlay Active</span>
               </div>
-              <div className="text-[10px] text-amber-900 bg-amber-100/90 p-2 rounded border border-amber-300">
+              <div className="text-[10px] text-amber-900 bg-amber-100/90 p-2.5 rounded border border-amber-300">
                 Red highlighted regions will receive targeted solvent/photothermal ink release in the physical RELEAF chamber.
               </div>
             </div>
