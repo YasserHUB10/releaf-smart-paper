@@ -12,143 +12,114 @@ import {
   Scan,
   Settings,
   ArrowRight,
+  MoveUpRight,
+  CheckCircle2,
+  Lock,
+  FileCheck2,
 } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Features",
+  title: "Core Capabilities",
   description:
-    "Explore all RELEAF capabilities: smart printing, intelligent de-inking, AI document restoration, DocumentGuard, and paper reuse tracking.",
+    "Explore all RELEAF capabilities: smart printing, Canva-style document studio, selective de-inking, AI document restoration, and DocumentGuard.",
 };
 
-const features = [
+const capabilities = [
   {
-    id: "smart-printing",
-    icon: Printer,
-    title: "Smart Printing",
-    tag: null,
+    id: "document-studio",
+    icon: Scan,
+    title: "Canva-Style Document Studio",
+    tag: "LIVE STUDIO",
     description:
-      "Configure paper size, type, orientation, print quality, margins, and scaling with full precision. RELEAF supports A3 through A6, Letter, Legal, Executive, and custom sizes.",
+      "Click any paragraph or text element on an uploaded PDF or image to select, drag to reposition, edit inline, or permanently delete with the Delete key. Real vector PDF export.",
     details: [
-      "Portrait and landscape orientation",
-      "Colour and greyscale modes",
-      "Single and double-sided printing",
-      "Page range and copy count",
-      "Margin and scaling controls",
-      "Multiple paper type profiles",
+      "Select & move individual document elements",
+      "Inline text editing with typography formatting",
+      "Instant deletion using keyboard shortcuts",
+      "Real vector PDF download with deleted items excluded",
+      "Full Undo / Redo history state stack",
     ],
-    cta: { label: "Configure paper", href: "/paper-compatibility" },
+    cta: { label: "Open Document Studio", href: "/workspace" },
   },
   {
-    id: "intelligent-de-inking",
+    id: "selective-deinking",
     icon: Layers,
-    title: "Intelligent De-Inking",
+    title: "Intelligent Selective De-Inking",
     tag: "SIMULATION",
     description:
-      "Preview and simulate the selective ink removal process that enables paper reuse. RELEAF identifies which physical regions on a printed sheet need to be de-inked before reprinting.",
+      "Preview and simulate the selective ink removal process that enables paper reuse. RELEAF identifies which physical regions on a printed sheet need ink removal before reprinting.",
     details: [
-      "Region-based ink removal targeting",
-      "Compatibility check before processing",
-      "Before-and-after visual preview",
-      "Reuse cycle counter",
-      "Rejection for unsuitable sheets",
+      "Micron-targeted region coordinate calculations",
+      "Interactive de-inking heatmap overlay",
+      "Pre-processing fibre integrity checks",
+      "Cycle counter tracking (1–2 recommended prototype cycles)",
+      "Rejection safeguard for unsuitable coated papers",
     ],
-    cta: { label: "Try simulation", href: "/workspace" },
+    cta: { label: "Try De-Inking Simulator", href: "/workspace" },
   },
   {
-    id: "ai-document-restoration",
+    id: "ai-restoration",
     icon: Sparkles,
     title: "AI Document Restoration",
-    tag: null,
+    tag: "INTEGRATED",
     description:
-      "Apply AI suggestions to correct spelling, grammar, and readability issues. The AI assistant provides suggestions that you review before applying. AI-generated text is always marked as a suggestion.",
+      "Apply AI suggestions to correct spelling, grammar, and readability issues. The AI assistant provides suggestions that you review before applying. AI text is always marked as a suggestion.",
     details: [
-      "Spelling and grammar correction",
-      "Readability improvements",
-      "Document summarisation",
-      "Translation assistance",
-      "Damaged text reconstruction (marked uncertain)",
-      "Print-ready preparation guidance",
+      "Contextual spelling and grammar radar",
+      "Readability and executive summarisation",
+      "One-click application to the live canvas",
+      "Damaged text reconstruction with confidence ratings",
+      "Client-side processing preserves document privacy",
     ],
     cta: { label: "Open AI Assistant", href: "/assistant" },
   },
   {
     id: "documentguard",
     icon: Shield,
-    title: "DocumentGuard",
-    tag: null,
+    title: "DocumentGuard Integrity Engine",
+    tag: "SECURITY",
     description:
-      "A built-in security layer that detects sensitive documents, flags risky edits, and prevents fraudulent alterations. Every restoration operation passes through a security review.",
+      "A built-in security layer that classifies sensitive documents, flags risky edits, and prevents fraudulent alterations with GREEN / AMBER / RED validation gates.",
     details: [
-      "Sensitive document classification",
-      "GREEN / AMBER / RED decision display",
-      "Blocked operations with clear reasons",
-      "Anti-fraud edit restrictions",
-      "Watermarking for edited exports",
-      "Audit-ready decision records",
+      "Sensitive document classification (academic, financial, legal)",
+      "Strict blocks against modifying financial transaction values",
+      "Audit-ready decision records and warnings",
+      "Deceptive document manipulation prevention",
+      "Watermark tagging for exported modifications",
     ],
-    cta: { label: "Explore DocumentGuard", href: "/documentguard" },
+    cta: { label: "Inspect DocumentGuard", href: "/documentguard" },
   },
   {
-    id: "paper-reuse-tracking",
-    icon: Recycle,
-    title: "Paper Reuse Tracking",
+    id: "smart-printing",
+    icon: Printer,
+    title: "Smart Printing & Paper Matrix",
     tag: null,
     description:
-      "Track sheets through their reuse lifecycle. RELEAF maintains a configurable reuse-cycle limit (recommended: 1–2 cycles in prototype phase) to protect quality and prevent overuse.",
+      "Configure paper size, type, orientation, print quality, margins, and scaling with full precision. RELEAF supports A3 through A6, Letter, Legal, Executive, and custom dimensions.",
     details: [
-      "Per-sheet reuse cycle counter",
-      "Configurable maximum reuse limit",
-      "Rejection logic for exceeded cycles",
-      "Session-based tracking (no cloud required)",
+      "A3, A4, A5, A6, B4, B5, Letter, Legal & Custom sizing",
+      "Separate print compatibility vs de-inking compatibility",
+      "Duplex long/short edge orientation options",
+      "Draft, normal, and high print quality profiles",
+      "Bond, notebook, ruled, unruled, and recycled paper settings",
     ],
-    cta: { label: "View Dashboard", href: "/dashboard" },
+    cta: { label: "Configure Paper Matrix", href: "/paper-compatibility" },
   },
   {
-    id: "environmental-impact",
+    id: "environmental-ledger",
     icon: BarChart3,
-    title: "Environmental Dashboard",
-    tag: "ESTIMATES",
+    title: "Environmental Impact Dashboard",
+    tag: "METRICS",
     description:
       "See at-a-glance data on sheets reused, operations completed, and estimated impact. All figures are clearly labelled as estimates or demo data until real hardware measurements are available.",
     details: [
-      "Sheets reused counter",
-      "Successful / failed operation counts",
-      "Sheets rejected for reuse",
-      "Estimated sheets avoided",
-      "Demo data clearly labelled",
+      "Sheets reused counter per facility/session",
+      "Fibre degradation monitoring (< 2.5% per cycle)",
+      "Estimated paper sheets and pulp avoided",
+      "Real-time printer connection state indicator",
+      "Transparent prototype disclosure on all data",
     ],
-    cta: { label: "Open Dashboard", href: "/dashboard" },
-  },
-  {
-    id: "paper-compatibility",
-    icon: Settings,
-    title: "Paper Compatibility",
-    tag: null,
-    description:
-      "Not all paper that can be printed on is suitable for physical ink removal. RELEAF provides a dedicated compatibility interface to check paper type, thickness, and previous print history.",
-    details: [
-      "Standard, bond, recycled, glossy, matte profiles",
-      "Thickness and coating checks",
-      "De-inking compatibility separate from print compatibility",
-      "Demonstration mode for hardware-unavailable checks",
-    ],
-    cta: { label: "Check compatibility", href: "/paper-compatibility" },
-  },
-  {
-    id: "scanning",
-    icon: Scan,
-    title: "Document Import & Scanning",
-    tag: null,
-    description:
-      "Import PDF, PNG, JPG, and JPEG documents directly. Preview multi-page PDFs, navigate between pages, and use the in-browser viewer before sending to the AI workflow.",
-    details: [
-      "Drag-and-drop or file picker",
-      "File validation and size limits",
-      "Multi-page PDF navigation",
-      "Clear document preview",
-      "Remove / replace document action",
-    ],
-    cta: { label: "Open Workspace", href: "/workspace" },
+    cta: { label: "View Impact Dashboard", href: "/dashboard" },
   },
 ];
 
@@ -156,64 +127,61 @@ export default function FeaturesPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-24 pb-16 bg-cream min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
         <div className="container-narrow">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-forest mb-4">
-              All Capabilities
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="pill-badge mb-3">Capabilities Architecture</span>
+            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+              Comprehensive Platform Capabilities
             </h1>
-            <p className="text-charcoal/60 text-lg max-w-xl mx-auto">
-              A complete overview of every feature in RELEAF, from smart
-              printing to AI document restoration.
+            <p className="text-charcoal/70 text-base leading-relaxed">
+              From Canva-grade vector document editing to selective ink removal algorithms and anti-fraud integrity gates.
             </p>
           </div>
 
-          <div className="space-y-8">
-            {features.map(({ id, icon: Icon, title, tag, description, details, cta }) => (
+          {/* Feature Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {capabilities.map(({ id, icon: Icon, title, tag, description, details, cta }) => (
               <section
                 key={id}
                 id={id}
-                className="bg-white rounded-2xl p-8 border border-sage/40 scroll-mt-24"
-                aria-labelledby={`feature-${id}`}
+                className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs card-hover flex flex-col justify-between"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-                  <div>
-                    <div className="flex items-center gap-3 mb-4">
-                      <div className="w-10 h-10 rounded-xl bg-sage flex items-center justify-center flex-shrink-0">
-                        <Icon className="w-5 h-5 text-primary" aria-hidden="true" />
-                      </div>
-                      <div>
-                        <h2 id={`feature-${id}`} className="text-xl font-bold text-forest">
-                          {title}
-                        </h2>
-                        {tag && <span className="sim-badge">{tag}</span>}
-                      </div>
+                <div>
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="w-12 h-12 rounded-2xl bg-forest text-lime flex items-center justify-center">
+                      <Icon className="w-6 h-6" aria-hidden="true" />
                     </div>
-                    <p className="text-charcoal/70 leading-relaxed mb-6">
-                      {description}
-                    </p>
-                    <Link
-                      href={cta.href}
-                      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-white text-sm font-semibold hover:bg-forest transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    >
-                      {cta.label}
-                      <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                    </Link>
+                    {tag && <span className="sim-badge">{tag}</span>}
                   </div>
 
-                  <div>
-                    <h3 className="text-sm font-semibold text-charcoal/50 uppercase tracking-wider mb-3">
-                      What it includes
-                    </h3>
-                    <ul className="space-y-2" role="list">
-                      {details.map((d) => (
-                        <li key={d} className="flex items-start gap-2 text-sm text-charcoal/80">
-                          <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" aria-hidden="true" />
-                          {d}
-                        </li>
-                      ))}
-                    </ul>
+                  <h2 className="text-xl font-extrabold text-forest mb-2">{title}</h2>
+                  <p className="text-xs sm:text-sm text-charcoal/70 leading-relaxed mb-6">
+                    {description}
+                  </p>
+
+                  <div className="space-y-2 mb-8 bg-[#F9F8F3] p-4 rounded-2xl border border-black/5">
+                    <p className="text-[11px] font-bold text-forest uppercase tracking-wider mb-2">
+                      Included Capabilities
+                    </p>
+                    {details.map((item) => (
+                      <div key={item} className="flex items-start gap-2 text-xs text-charcoal/80">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </div>
+                    ))}
                   </div>
+                </div>
+
+                <div className="pt-4 border-t border-black/5">
+                  <Link
+                    href={cta.href}
+                    className="inline-flex items-center justify-between w-full py-2.5 px-4 rounded-xl bg-forest hover:bg-forest-light text-white text-xs font-bold transition-all shadow-2xs"
+                  >
+                    <span>{cta.label}</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-lime" />
+                  </Link>
                 </div>
               </section>
             ))}

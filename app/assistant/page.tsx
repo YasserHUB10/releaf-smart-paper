@@ -11,7 +11,11 @@ import {
   FileText,
   AlertTriangle,
   Bot,
+  User,
+  Zap,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 
 interface Message {
   role: "user" | "assistant";
@@ -20,16 +24,16 @@ interface Message {
 }
 
 const DEMO_RESPONSES: Record<string, string> = {
-  default: `[DEMO MODE — No AI API key configured]\n\nI'm RELEAF's AI Document Assistant. In a live deployment, I'd analyse your uploaded document and provide:\n\n• Spelling and grammar corrections\n• Readability improvements\n• Summary of content\n• Suggestions for print preparation\n• Guidance on DocumentGuard warnings\n\nTo enable real AI responses, configure RELEAF_AI_KEY in your environment.`,
-  help: `[DEMO] I can help with:\n• "Correct this text: [paste text here]"\n• "Summarise my document"\n• "What does DocumentGuard mean by AMBER status?"\n• "What paper should I use for reuse?"\n• "Translate this paragraph to French"`,
-  spelling: `[DEMO] Here are some typical spelling corrections I would detect:\n\n❌ "schedueled" → ✅ "scheduled"\n❌ "Tuseday" → ✅ "Tuesday"\n❌ "recieve" → ✅ "receive"\n\nIn live mode, I'd scan your uploaded document and highlight every error with confidence scores.`,
-  summarise: `[DEMO] Summary generation requires a real document to be uploaded and an active AI integration. In live mode, I'd produce:\n\n• A 2–3 sentence executive summary\n• Key topics identified\n• Entities detected (names, dates, amounts)\n\nAll outputs would be marked as AI-generated suggestions for your review.`,
+  default: `[DEMO MODE — Client-Side Prototype]\n\nI'm RELEAF's AI Document Assistant. In a production environment with RELEAF_AI_KEY configured, I will:\n\n• Detect and auto-correct typos and syntax errors directly in your canvas elements.\n• Provide executive summarization and readability enhancements.\n• Inspect DocumentGuard sensitivity flags (e.g. academic or financial markers).\n• Recommend optimal de-inking bounding boxes for minimum fibre wear.\n\nAll suggestions remain client-side until you choose to apply them to your document canvas.`,
+  help: `[DEMO HELP] Here are sample queries you can explore:\n• "How do I selectively delete a paragraph in the Studio?"\n• "Why did DocumentGuard flag my document as AMBER?"\n• "Which paper substrates support multiple de-inking cycles?"\n• "Correct the typo in my corporate memorandum."`,
+  spelling: `[DEMO RADAR] Typo scan complete for active document:\n\n❌ "schedueled" → ✅ "scheduled" (Confidence: 99%)\n❌ "Tuseday" → ✅ "Tuesday" (Confidence: 98%)\n\nIn the Studio workspace, you can apply these corrections to the canvas with a single click.`,
+  summarise: `[DEMO SUMMARY] Document Summary:\n\n• Topic: Quarterly Sustainability and Smart Paper Workflow Adoption.\n• Key Recommendation: Transition office printing to 80 gsm recycled paper with 1–2 reuse cycles.\n• Status: Clean for selective restoration.`,
 };
 
 function getDemo(input: string): string {
   const lower = input.toLowerCase();
   if (lower.includes("help") || lower.includes("what can you")) return DEMO_RESPONSES.help;
-  if (lower.includes("spell") || lower.includes("correct") || lower.includes("grammar")) return DEMO_RESPONSES.spelling;
+  if (lower.includes("spell") || lower.includes("correct") || lower.includes("grammar") || lower.includes("typo")) return DEMO_RESPONSES.spelling;
   if (lower.includes("summar") || lower.includes("overview")) return DEMO_RESPONSES.summarise;
   return DEMO_RESPONSES.default;
 }
@@ -38,27 +42,26 @@ export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: "assistant",
-      text: "Hello! I'm the RELEAF AI Document Assistant. Upload a document in the Workspace, then ask me to correct, summarise, or explain it. Running in demo mode — sample responses only.",
+      text: "Hello! I am RELEAF's AI Document Assistant. Ask me to scan for typos, summarize documents, or guide paper de-inking compatibility. Running in client-side demo mode.",
       isDemo: true,
     },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const send = async () => {
-    const trimmed = input.trim();
-    if (!trimmed) return;
+  const send = async (customPrompt?: string) => {
+    const textToSend = customPrompt || input.trim();
+    if (!textToSend) return;
 
-    setMessages((m) => [...m, { role: "user", text: trimmed }]);
-    setInput("");
+    setMessages((m) => [...m, { role: "user", text: textToSend }]);
+    if (!customPrompt) setInput("");
     setLoading(true);
 
-    // Simulate response delay
-    await new Promise((r) => setTimeout(r, 800));
+    await new Promise((r) => setTimeout(r, 600));
 
     setMessages((m) => [
       ...m,
-      { role: "assistant", text: getDemo(trimmed), isDemo: true },
+      { role: "assistant", text: getDemo(textToSend), isDemo: true },
     ]);
     setLoading(false);
   };
@@ -67,7 +70,7 @@ export default function AssistantPage() {
     setMessages([
       {
         role: "assistant",
-        text: "Hello! I'm the RELEAF AI Document Assistant. Running in demo mode.",
+        text: "Hello! I am RELEAF's AI Document Assistant. Running in client-side demo mode.",
         isDemo: true,
       },
     ]);
@@ -77,83 +80,86 @@ export default function AssistantPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-20 pb-0 bg-cream min-h-screen flex flex-col">
-        <div className="container-narrow flex-1 flex flex-col py-8">
-          <div className="flex items-center justify-between mb-6 flex-wrap gap-3">
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen flex flex-col">
+        <div className="container-narrow flex-1 flex flex-col max-w-4xl w-full">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
-              <h1 className="text-3xl font-bold text-forest flex items-center gap-3">
-                <Sparkles className="w-7 h-7 text-primary" aria-hidden="true" />
+              <span className="pill-badge mb-2">AI Document Restoration</span>
+              <h1 className="text-3xl sm:text-4xl font-black text-forest tracking-tight">
                 AI Document Assistant
               </h1>
-              <p className="text-charcoal/60 mt-1 text-sm">
-                Ask questions about your documents, get corrections, summaries, and restoration guidance.
+              <p className="text-xs sm:text-sm text-charcoal/60 mt-1">
+                Contextual AI guidance for proofreading, document restoration, and paper compatibility.
               </p>
             </div>
-            <div className="flex gap-2 flex-wrap">
-              <span className="sim-badge">DEMO MODE</span>
+
+            <div className="flex items-center gap-2">
+              <span className="sim-badge">CLIENT DEMO</span>
               <button
                 onClick={reset}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sage text-sm text-charcoal hover:bg-sage/30 transition-colors"
-                aria-label="Reset conversation"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-charcoal hover:bg-black/5 transition-colors shadow-2xs"
+                title="Reset conversation"
               >
-                <RotateCcw className="w-3.5 h-3.5" aria-hidden="true" />
-                Reset
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>Reset</span>
               </button>
             </div>
           </div>
 
-          {/* Demo mode banner */}
-          <div className="flex items-start gap-2 bg-amber-50 border border-amber-200 rounded-xl px-4 py-3 text-sm text-amber-800 mb-4">
-            <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" aria-hidden="true" />
-            <p>
-              No AI API key is configured. Sample responses are shown for
-              demonstration purposes only. Real document analysis requires{" "}
-              <code className="bg-amber-100 px-1 rounded text-xs">
-                RELEAF_AI_KEY
-              </code>{" "}
-              to be set in your environment.
-            </p>
+          {/* Quick Prompt Chips */}
+          <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1 text-xs">
+            <span className="text-[11px] font-bold text-forest uppercase shrink-0">Try Asking:</span>
+            {[
+              "Scan for spelling typos",
+              "Summarize document",
+              "Explain de-inking compatibility",
+              "DocumentGuard rules",
+            ].map((prompt) => (
+              <button
+                key={prompt}
+                onClick={() => send(prompt)}
+                className="px-3 py-1.5 rounded-full bg-white hover:bg-forest hover:text-white border border-black/10 text-xs font-medium text-charcoal/80 shrink-0 transition-all shadow-2xs"
+              >
+                {prompt}
+              </button>
+            ))}
           </div>
 
-          {/* Chat area */}
-          <div
-            className="flex-1 bg-white rounded-2xl border border-sage flex flex-col overflow-hidden"
-            style={{ minHeight: "400px", maxHeight: "60vh" }}
-          >
-            <div
-              className="flex-1 overflow-y-auto p-5 space-y-4"
-              role="log"
-              aria-label="Conversation"
-              aria-live="polite"
-            >
+          {/* Chat Container */}
+          <div className="flex-1 bg-white rounded-3xl border border-black/5 shadow-xs flex flex-col overflow-hidden min-h-[480px]">
+            {/* Message Feed */}
+            <div className="flex-1 overflow-y-auto p-6 space-y-4">
               <AnimatePresence initial={false}>
                 {messages.map((m, i) => (
                   <motion.div
                     key={i}
-                    initial={{ opacity: 0, y: 8 }}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {m.role === "assistant" && (
-                      <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center flex-shrink-0 mt-1">
-                        <Bot className="w-3.5 h-3.5 text-white" aria-hidden="true" />
+                      <div className="w-8 h-8 rounded-xl bg-forest text-lime flex items-center justify-center shrink-0 shadow-2xs">
+                        <Bot className="w-4 h-4" />
                       </div>
                     )}
+
                     <div
-                      className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${
+                      className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
                         m.role === "user"
-                          ? "bg-primary text-white rounded-tr-none"
-                          : "bg-sage/30 text-charcoal rounded-tl-none"
+                          ? "bg-forest text-white rounded-tr-none shadow-xs"
+                          : "bg-[#F9F8F3] text-charcoal rounded-tl-none border border-black/5"
                       }`}
                     >
                       {m.isDemo && m.role === "assistant" && (
-                        <span className="sim-badge mb-2 block w-fit">DEMO</span>
+                        <span className="sim-badge mb-2 block w-fit">SIMULATED RESPONSE</span>
                       )}
                       <p className="whitespace-pre-line">{m.text}</p>
                     </div>
+
                     {m.role === "user" && (
-                      <div className="w-7 h-7 rounded-full bg-charcoal/20 flex items-center justify-center flex-shrink-0 mt-1">
-                        <FileText className="w-3.5 h-3.5 text-charcoal" aria-hidden="true" />
+                      <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-2xs">
+                        <User className="w-4 h-4" />
                       </div>
                     )}
                   </motion.div>
@@ -161,57 +167,53 @@ export default function AssistantPage() {
               </AnimatePresence>
 
               {loading && (
-                <div className="flex gap-3 items-center text-charcoal/50 text-sm">
-                  <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-                    <Bot className="w-3.5 h-3.5 text-white" aria-hidden="true" />
+                <div className="flex gap-3 items-center text-charcoal/50 text-xs">
+                  <div className="w-8 h-8 rounded-xl bg-forest text-lime flex items-center justify-center">
+                    <Bot className="w-4 h-4" />
                   </div>
-                  <div className="flex gap-1" aria-label="Assistant is thinking">
-                    {[0, 1, 2].map((i) => (
-                      <span
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full bg-charcoal/30 animate-bounce"
-                        style={{ animationDelay: `${i * 0.15}s` }}
-                        aria-hidden="true"
-                      />
-                    ))}
+                  <div className="flex gap-1">
+                    <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
+                    <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.15s]" />
+                    <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.3s]" />
                   </div>
                 </div>
               )}
             </div>
 
-            {/* Input */}
-            <div className="border-t border-sage p-3">
+            {/* Input Composer */}
+            <div className="p-4 bg-[#F9F8F3] border-t border-black/5">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
                   send();
                 }}
-                className="flex gap-2"
+                className="flex items-center gap-2"
               >
-                <label htmlFor="assistant-input" className="sr-only">
-                  Message the AI assistant
-                </label>
                 <input
-                  id="assistant-input"
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask about your document…"
+                  placeholder="Ask about proofreading, de-inking, or DocumentGuard..."
                   disabled={loading}
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-sage bg-cream text-sm text-charcoal placeholder-charcoal/30 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary disabled:opacity-50"
+                  className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-charcoal placeholder-charcoal/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs"
                 />
+
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="w-10 h-10 rounded-xl bg-primary text-white flex items-center justify-center hover:bg-forest transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                  className="w-11 h-11 rounded-xl bg-forest hover:bg-forest-light text-lime flex items-center justify-center transition-all disabled:opacity-40 disabled:hover:bg-forest shadow-xs shrink-0"
                   aria-label="Send message"
                 >
-                  <Send className="w-4 h-4" aria-hidden="true" />
+                  <Send className="w-4 h-4" />
                 </button>
               </form>
-              <p className="text-xs text-charcoal/30 mt-2 text-center">
-                AI suggestions are for review only. Never silently modifies your document.
-              </p>
+
+              <div className="mt-2.5 flex items-center justify-between text-[11px] text-charcoal/40 px-1">
+                <span>Client-Side Sandbox • No keys or credentials exposed</span>
+                <Link href="/workspace" className="text-primary hover:underline font-semibold">
+                  Open in Document Studio &rarr;
+                </Link>
+              </div>
             </div>
           </div>
         </div>

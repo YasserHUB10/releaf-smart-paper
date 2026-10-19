@@ -1,85 +1,65 @@
 import type { Metadata } from "next";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
+import { AlertCircle, ShieldAlert } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Terms of Use",
-  description: "RELEAF terms of use for the prototype demonstration.",
+  title: "Prototype Terms of Use",
+  description: "Terms of use and prototype demonstration guidelines for RELEAF.",
 };
 
 export default function TermsPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-24 pb-16 bg-cream min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
         <div className="container-narrow max-w-3xl">
-          <h1 className="text-4xl font-bold text-forest mb-2">Terms of Use</h1>
-          <p className="text-charcoal/50 text-sm mb-10">
-            Prototype version — October 2026
-          </p>
+          <div className="text-center mb-12">
+            <span className="pill-badge mb-3">Legal Guidelines</span>
+            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-3">
+              Terms of Use
+            </h1>
+            <p className="text-xs sm:text-sm text-charcoal/60 font-mono">
+              Hackathon Demonstration Edition • 2026
+            </p>
+          </div>
 
-          <div className="bg-white rounded-2xl border border-sage/40 p-8 space-y-8 text-sm text-charcoal/80 leading-relaxed">
-            <section aria-labelledby="terms-scope">
-              <h2 id="terms-scope" className="text-lg font-bold text-forest mb-3">
-                1. Prototype Status
-              </h2>
+          <div className="bg-white rounded-3xl p-8 sm:p-10 border border-black/5 shadow-xs space-y-8 text-xs sm:text-sm text-charcoal/80 leading-relaxed">
+            <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-950 flex items-start gap-3">
+              <ShieldAlert className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-bold text-xs">Research Prototype Notice</p>
+                <p className="text-xs text-amber-900/80">
+                  RELEAF is presented as an advanced technology demonstration for technology hackathons and investor evaluations. Hardware de-inking representations are interactive simulations.
+                </p>
+              </div>
+            </div>
+
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-forest">1. Acceptable Use</h2>
               <p>
-                RELEAF is a concept prototype presented for hackathon and investor
-                demonstration purposes. It is not a commercially released product.
-                Features described as simulations do not represent operational
-                hardware capabilities.
+                Users are encouraged to upload documents, test Canva-style visual editing, evaluate selective deletion, and experiment with paper matrix settings. You agree not to use the software to create deceptive, fraudulent, or counterfeit records.
               </p>
             </section>
 
-            <section aria-labelledby="terms-use">
-              <h2 id="terms-use" className="text-lg font-bold text-forest mb-3">
-                2. Permitted Use
-              </h2>
-              <p className="mb-2">
-                You may use RELEAF to explore the demonstration features,
-                understand the product concept, and evaluate the application for
-                your own purposes.
-              </p>
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-forest">2. Anti-Fraud & DocumentGuard Compliance</h2>
               <p>
-                You must not use RELEAF to facilitate fraudulent document
-                alterations, misrepresent simulated outputs as genuine hardware
-                results, or claim that simulation outputs are official or
-                verified documents.
+                You acknowledge that DocumentGuard places restrictions on modifying educational diplomas, state credentials, and financial invoices. Any attempt to circumvent security rules to falsify records is strictly prohibited.
               </p>
             </section>
 
-            <section aria-labelledby="terms-limitations">
-              <h2 id="terms-limitations" className="text-lg font-bold text-forest mb-3">
-                3. Limitations of Liability
-              </h2>
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-forest">3. Intellectual Property</h2>
               <p>
-                RELEAF is provided as-is for demonstration purposes. No
-                warranties are made regarding the accuracy of AI suggestions,
-                the effectiveness of simulated de-inking demonstrations, or the
-                suitability of the application for any specific use case.
+                All brand marks, logos, vector icons, Mol-Paper 3D shaders, and interface layouts are property of the RELEAF project team under the MIT demonstration license.
               </p>
             </section>
 
-            <section aria-labelledby="terms-fraud">
-              <h2 id="terms-fraud" className="text-lg font-bold text-forest mb-3">
-                4. Anti-Fraud Commitment
-              </h2>
+            <section className="space-y-2">
+              <h2 className="text-base font-bold text-forest">4. Disclaimer of Hardware Warranty</h2>
               <p>
-                DocumentGuard is designed to prevent fraudulent document
-                alteration. Users must not attempt to circumvent security
-                controls or use RELEAF to create misleading or fraudulent
-                documents. Blocked operations are logged with the reason for
-                blocking.
-              </p>
-            </section>
-
-            <section aria-labelledby="terms-changes">
-              <h2 id="terms-changes" className="text-lg font-bold text-forest mb-3">
-                5. Changes
-              </h2>
-              <p>
-                These terms apply to the current prototype version. Terms will
-                be updated as the product matures toward a commercial release.
+                The digital studio simulates selective de-inking. RELEAF makes no representations that physical paper will be cleaned without compatible physical hardware chambers.
               </p>
             </section>
           </div>

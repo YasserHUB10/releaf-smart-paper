@@ -12,7 +12,10 @@ import {
   Lock,
   Droplets,
   Info,
+  ShieldCheck,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { motion } from "framer-motion";
 
 type SecurityStatus = "green" | "amber" | "red";
@@ -36,283 +39,228 @@ const SCENARIOS: SecurityScenario[] = [
     status: "green",
     statusLabel: "Permitted",
     reason:
-      "Spelling correction in a non-sensitive document. No sensitive fields detected. Operation is permitted under current rules.",
+      "Spelling correction in a standard internal document. No sensitive academic or monetary markers detected. Operation permitted under standard guidelines.",
   },
   {
     id: "invoice-amount",
-    title: "Changing an amount on an invoice",
-    description: 'Modifying "Total: £500.00" to "Total: £50.00" on an invoice.',
+    title: "Changing monetary amount on an invoice",
+    description: 'Modifying "Total: £500.00" to "Total: £50.00" on an invoice document.',
     status: "red",
     statusLabel: "Blocked",
     reason:
-      "Modifying monetary amounts on financial documents is blocked. This operation could constitute financial fraud. The RELEAF system will not assist with altering transaction values on official financial records.",
+      "Modifying financial transaction values on invoices, receipts, or contracts is strictly blocked. Altering monetary sums can facilitate fraud. RELEAF halts the physical restoration pipeline.",
     alternative:
-      "If this is a genuine error, contact your accounting department or issuing party to issue a corrected document through official channels.",
-    watermark: "BLOCKED — NOT PROCESSED",
+      "Contact your accounts department to reissue a revised invoice through official bookkeeping software.",
+    watermark: "BLOCKED — FRAUD SAFEGUARD",
   },
   {
     id: "certificate-name",
-    title: "Changing a name on an academic certificate",
-    description: "Modifying the graduate name field on a university certificate.",
+    title: "Altering name on academic certificate",
+    description: "Modifying the student recipient name field on a university degree or transcript.",
     status: "red",
     statusLabel: "Blocked",
     reason:
-      "Academic certificates and educational records are sensitive documents. Altering personal identity fields on official records is blocked. This operation is not permitted.",
+      "Educational certificates, transcripts, and diplomas are protected credentials. Modifying personal identification fields on official records is blocked.",
     alternative:
-      "Contact the issuing institution to request an official name correction.",
-    watermark: "BLOCKED — NOT PROCESSED",
+      "Submit an official name correction petition directly to the accredited issuing institution.",
+    watermark: "BLOCKED — CREDENTIAL ALTERATION",
   },
   {
     id: "contract-date",
-    title: "Updating a date in a draft contract",
+    title: "Modifying commencement date in draft agreement",
     description:
-      'Changing "effective from 1 January 2024" to "effective from 1 March 2024" in a draft document marked DRAFT.',
+      'Changing "effective from 1 Jan 2026" to "effective from 1 Mar 2026" in a document tagged DRAFT.',
     status: "amber",
     statusLabel: "Review Required",
     reason:
-      'Date fields in contracts require additional review. The document is marked DRAFT, which reduces risk, but date modifications in contractual documents should be reviewed by all parties. Proceed with caution.',
-    watermark: "DRAFT — AI EDITED",
+      "Date alterations in contractual agreements require explicit multi-party verification. The document carries a draft tag, but changes to execution dates require manual supervisor approval.",
+    watermark: "REVISED DRAFT — PENDING AUDIT",
   },
   {
     id: "restore-damaged",
-    title: "Reconstructing damaged text in a personal document",
-    description:
-      "Filling in a partially smudged word in a personal receipt.",
+    title: "Reconstructing smudged text on personal notes",
+    description: "Filling in partially faded characters on personal handwritten notes or receipts.",
     status: "green",
     statusLabel: "Permitted",
     reason:
-      "Low-risk text restoration in a personal document with no sensitive fields detected. AI reconstruction is marked as uncertain for review. Operation permitted.",
+      "Low-risk text reconstruction in a personal non-contractual context. AI fills are clearly labelled with confidence scores.",
   },
 ];
 
-const statusIcon = {
-  green: CheckCircle2,
-  amber: AlertTriangle,
-  red: XCircle,
-};
-
-const statusColour = {
+const statusStyles = {
   green: "status-green",
   amber: "status-amber",
   red: "status-red",
 };
 
+const statusIcons = {
+  green: CheckCircle2,
+  amber: AlertTriangle,
+  red: XCircle,
+};
+
 export default function DocumentGuardPage() {
-  const [selected, setSelected] = useState<string | null>(null);
-  const current = SCENARIOS.find((s) => s.id === selected);
+  const [selectedId, setSelectedId] = useState<string>("typo");
+  const selected = SCENARIOS.find((s) => s.id === selectedId) || SCENARIOS[0];
+  const IconComponent = statusIcons[selected.status];
 
   return (
     <>
       <Navigation />
-      <main className="pt-24 pb-16 bg-cream min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
         <div className="container-narrow">
           {/* Header */}
-          <div className="flex items-start gap-4 mb-12">
-            <div className="w-14 h-14 rounded-2xl bg-forest flex items-center justify-center flex-shrink-0">
-              <Shield className="w-7 h-7 text-white" aria-hidden="true" />
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="pill-badge mb-3">Integrity & Governance</span>
+            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+              DocumentGuard Security Engine
+            </h1>
+            <p className="text-charcoal/70 text-base leading-relaxed">
+              Distinguishing legitimate typographical restoration from fraudulent credential and financial alteration.
+            </p>
+          </div>
+
+          {/* Three Tier Decision Rules */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {[
+              {
+                status: "green" as const,
+                title: "GREEN — Permitted",
+                desc: "Legitimate typographical, grammatical, or layout repairs in non-sensitive contexts. The operation proceeds to de-inking.",
+                icon: CheckCircle2,
+              },
+              {
+                status: "amber" as const,
+                title: "AMBER — Review Required",
+                desc: "Changes to dates, signatures, or contractual clauses in draft legal documents. Requires explicit confirmation and audit tagging.",
+                icon: AlertTriangle,
+              },
+              {
+                status: "red" as const,
+                title: "RED — Blocked",
+                desc: "Alterations to academic certificates, identity credentials, or invoice payment amounts. Strictly halted at hardware level.",
+                icon: XCircle,
+              },
+            ].map(({ status, title, desc, icon: Icon }) => (
+              <div
+                key={title}
+                className={`p-6 rounded-3xl border shadow-xs ${statusStyles[status]}`}
+              >
+                <Icon className="w-6 h-6 mb-3" />
+                <h3 className="font-bold text-base mb-1">{title}</h3>
+                <p className="text-xs leading-relaxed opacity-90">{desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Interactive Scenario Evaluator */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
+            {/* Scenario Buttons (Left) */}
+            <div className="lg:col-span-5 space-y-3">
+              <h2 className="text-xs font-bold text-forest uppercase tracking-wider mb-2">
+                Select Test Scenario
+              </h2>
+              {SCENARIOS.map((s) => {
+                const isCurrent = s.id === selectedId;
+                const ItemIcon = statusIcons[s.status];
+                return (
+                  <button
+                    key={s.id}
+                    onClick={() => setSelectedId(s.id)}
+                    className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
+                      isCurrent
+                        ? "bg-white border-forest shadow-md ring-1 ring-forest/20"
+                        : "bg-white/60 hover:bg-white border-black/5 text-charcoal/70"
+                    }`}
+                  >
+                    <ItemIcon
+                      className={`w-5 h-5 shrink-0 mt-0.5 ${
+                        s.status === "green"
+                          ? "text-green-600"
+                          : s.status === "amber"
+                          ? "text-amber-600"
+                          : "text-red-600"
+                      }`}
+                    />
+                    <div>
+                      <p className="font-bold text-xs sm:text-sm text-forest">{s.title}</p>
+                      <p className="text-[11px] text-charcoal/50 line-clamp-1">{s.description}</p>
+                    </div>
+                  </button>
+                );
+              })}
             </div>
-            <div>
-              <h1 className="text-4xl font-bold text-forest">DocumentGuard</h1>
-              <p className="text-charcoal/60 mt-1 max-w-xl">
-                A built-in security layer that classifies documents, flags
-                sensitive edits, and prevents fraudulent document alterations.
-                Every restoration operation passes through a security review
-                before proceeding.
-              </p>
+
+            {/* Decision Details Panel (Right) */}
+            <div className="lg:col-span-7 bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-black/5">
+                <div>
+                  <span className="text-[10px] font-mono uppercase text-charcoal/40">
+                    Decision Analysis
+                  </span>
+                  <h3 className="text-lg font-black text-forest">{selected.title}</h3>
+                </div>
+
+                <div className={`px-3 py-1 rounded-full text-xs font-bold ${statusStyles[selected.status]}`}>
+                  {selected.statusLabel}
+                </div>
+              </div>
+
+              <div>
+                <h4 className="text-xs font-bold text-forest uppercase tracking-wider mb-1">
+                  Proposed Action
+                </h4>
+                <p className="text-xs sm:text-sm text-charcoal/70">{selected.description}</p>
+              </div>
+
+              <div className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-2 ${statusStyles[selected.status]}`}>
+                <div className="font-bold flex items-center gap-1.5">
+                  <IconComponent className="w-4 h-4" />
+                  <span>DocumentGuard Determination</span>
+                </div>
+                <p>{selected.reason}</p>
+              </div>
+
+              {selected.alternative && (
+                <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs">
+                  <span className="font-bold block mb-1">Legitimate Recommended Alternative:</span>
+                  <p>{selected.alternative}</p>
+                </div>
+              )}
+
+              {selected.watermark && (
+                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs text-center space-y-2">
+                  <span className="text-[10px] text-charcoal/50 uppercase font-mono block">
+                    Security Watermark Applied to Physical Tray:
+                  </span>
+                  <span className="inline-block px-4 py-1.5 border-2 border-dashed border-red-400 text-red-600 font-black tracking-widest text-xs uppercase rotate-[-3deg] bg-white">
+                    {selected.watermark}
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* How it works */}
-          <section className="bg-white rounded-2xl p-8 border border-sage/40 mb-8" aria-labelledby="how-guard-works">
-            <h2 id="how-guard-works" className="text-xl font-bold text-forest mb-6">
-              Security Decision Framework
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[
-                {
-                  status: "green" as const,
-                  label: "GREEN — Permitted",
-                  desc: "The operation is permitted under the current rules. No sensitive patterns detected. Proceed with the workflow.",
-                  icon: CheckCircle2,
-                },
-                {
-                  status: "amber" as const,
-                  label: "AMBER — Review Required",
-                  desc: "Sensitive content or field modifications detected. The operation requires additional review before it can proceed.",
-                  icon: AlertTriangle,
-                },
-                {
-                  status: "red" as const,
-                  label: "RED — Blocked",
-                  desc: "The operation violates a security rule or would facilitate deceptive document manipulation. Access denied.",
-                  icon: XCircle,
-                },
-              ].map(({ status, label, desc, icon: Icon }) => (
-                <div
-                  key={status}
-                  className={`rounded-xl p-5 border ${statusColour[status]}`}
-                >
-                  <Icon className="w-6 h-6 mb-3" aria-hidden="true" />
-                  <h3 className="font-bold text-sm mb-2">{label}</h3>
-                  <p className="text-xs leading-relaxed opacity-80">{desc}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* Scenario demonstrations */}
-          <section aria-labelledby="scenarios-heading">
-            <h2 id="scenarios-heading" className="text-xl font-bold text-forest mb-4">
-              Example Security Decisions
-            </h2>
-            <p className="text-charcoal/60 text-sm mb-6">
-              Select a scenario to see how DocumentGuard responds. These are
-              rule-based demonstrations. Real deployments use server-side
-              validation.
-            </p>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Scenario list */}
-              <div className="space-y-3">
-                {SCENARIOS.map((s) => {
-                  const Icon = statusIcon[s.status];
-                  return (
-                    <button
-                      key={s.id}
-                      onClick={() => setSelected(s.id === selected ? null : s.id)}
-                      aria-expanded={selected === s.id}
-                      aria-pressed={selected === s.id}
-                      className={`w-full text-left rounded-xl border p-4 transition-all hover:shadow-sm ${
-                        selected === s.id
-                          ? "border-primary bg-primary/5"
-                          : "border-sage bg-white"
-                      }`}
-                    >
-                      <div className="flex items-start gap-3">
-                        <Icon
-                          className={`w-5 h-5 flex-shrink-0 mt-0.5 ${
-                            s.status === "green"
-                              ? "text-green-600"
-                              : s.status === "amber"
-                              ? "text-amber-600"
-                              : "text-red-600"
-                          }`}
-                          aria-hidden="true"
-                        />
-                        <div>
-                          <p className="font-semibold text-sm text-charcoal">
-                            {s.title}
-                          </p>
-                          <p className="text-xs text-charcoal/50 mt-0.5">
-                            {s.description}
-                          </p>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
+          {/* Anti-fraud commitment banner */}
+          <div className="p-8 rounded-3xl bg-forest text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+            <div className="space-y-2 max-w-xl">
+              <div className="flex items-center gap-2">
+                <Lock className="w-5 h-5 text-lime" />
+                <h3 className="font-bold text-lg">Anti-Fraud & Ethics Commitment</h3>
               </div>
-
-              {/* Decision detail */}
-              <div>
-                {!current ? (
-                  <div className="h-full flex items-center justify-center bg-white rounded-2xl border border-sage p-8 text-center">
-                    <div>
-                      <FileSearch
-                        className="w-10 h-10 text-charcoal/20 mx-auto mb-3"
-                        aria-hidden="true"
-                      />
-                      <p className="text-sm text-charcoal/40">
-                        Select a scenario to view the DocumentGuard decision.
-                      </p>
-                    </div>
-                  </div>
-                ) : (
-                  <motion.div
-                    key={current.id}
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-white rounded-2xl border border-sage p-6 space-y-5"
-                  >
-                    <div>
-                      <h3 className="font-bold text-forest text-lg mb-1">
-                        {current.title}
-                      </h3>
-                      <p className="text-sm text-charcoal/60">{current.description}</p>
-                    </div>
-
-                    {/* Status badge */}
-                    <div className={`rounded-xl border p-4 ${statusColour[current.status]}`}>
-                      <div className="flex items-center gap-2 mb-2">
-                        {(() => {
-                          const Icon = statusIcon[current.status];
-                          return <Icon className="w-5 h-5" aria-hidden="true" />;
-                        })()}
-                        <span className="font-bold text-sm">
-                          {current.statusLabel}
-                        </span>
-                      </div>
-                      <p className="text-sm leading-relaxed">{current.reason}</p>
-                    </div>
-
-                    {/* Alternative */}
-                    {current.alternative && (
-                      <div className="flex items-start gap-2 bg-blue-50 border border-blue-200 rounded-xl p-4">
-                        <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                        <p className="text-sm text-blue-800">{current.alternative}</p>
-                      </div>
-                    )}
-
-                    {/* Watermark preview */}
-                    {current.watermark && (
-                      <div>
-                        <h4 className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                          <Droplets className="w-3.5 h-3.5" aria-hidden="true" />
-                          Watermark applied to output
-                        </h4>
-                        <div className="bg-charcoal/5 rounded-xl p-4 flex items-center justify-center">
-                          <div className="rotate-[-12deg] opacity-40 border-4 border-red-500 text-red-600 font-black text-sm px-4 py-2 rounded select-none">
-                            {current.watermark}
-                          </div>
-                        </div>
-                        <p className="text-xs text-charcoal/40 mt-2">
-                          Watermarks are visible in exported or printed outputs
-                          where required.
-                        </p>
-                      </div>
-                    )}
-
-                    {/* Lock for blocked */}
-                    {current.status === "red" && (
-                      <div className="flex items-center gap-2 text-xs text-charcoal/50">
-                        <Lock className="w-3.5 h-3.5" aria-hidden="true" />
-                        Workflow halted. This operation cannot continue through
-                        the normal interface.
-                      </div>
-                    )}
-                  </motion.div>
-                )}
-              </div>
+              <p className="text-xs text-sage/80 leading-relaxed">
+                RELEAF rejects any use of de-inking technology to forge qualifications, falsify transaction documents, or create deceptive credentials.
+              </p>
             </div>
-          </section>
 
-          {/* Anti-fraud note */}
-          <section
-            className="mt-8 bg-forest text-white rounded-2xl p-8"
-            aria-labelledby="antifraud-heading"
-          >
-            <h2 id="antifraud-heading" className="text-xl font-bold mb-3">
-              Anti-Fraud Commitment
-            </h2>
-            <p className="text-sage/80 leading-relaxed text-sm">
-              RELEAF distinguishes legitimate document correction from fraudulent
-              alteration. The system does not assist with changing transaction
-              amounts, falsifying dates on financial records, altering
-              identification numbers, or modifying any field in a way designed
-              to misrepresent the original document. Blocked operations show a
-              concise reason and suggest a legitimate alternative path.
-            </p>
-          </section>
+            <Link
+              href="/workspace"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-lime text-forest font-bold text-xs hover:bg-white transition-all shrink-0"
+            >
+              <span>Test Guard in Studio</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
         </div>
       </main>
       <Footer />

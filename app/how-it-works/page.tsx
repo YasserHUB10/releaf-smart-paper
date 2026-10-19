@@ -2,53 +2,68 @@ import type { Metadata } from "next";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
-import { Scan, Sparkles, Layers, Printer, ArrowRight, AlertTriangle } from "lucide-react";
+import {
+  Scan,
+  Sparkles,
+  Layers,
+  Printer,
+  ArrowRight,
+  AlertTriangle,
+  MousePointer2,
+  ShieldCheck,
+  FileCheck2,
+  CheckCircle2,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "How It Works",
   description:
-    "Understand the RELEAF workflow from document import to paper restoration and reprinting.",
+    "Understand the RELEAF lifecycle from document upload and Canva-style visual editing to selective de-inking and reprinting.",
 };
 
 const steps = [
   {
     num: "01",
     icon: Scan,
-    title: "Scan or Import Your Document",
-    desc: "Upload a PDF, PNG, or JPG file directly from your device using the Workspace. RELEAF validates the file, displays a preview, and lets you navigate multi-page documents before processing begins.",
-    notes: [],
+    title: "1. Upload Document to Studio",
+    desc: "Import any PDF, PNG, or JPG file directly via drag-and-drop or file picker. RELEAF validates file integrity and parses document elements locally in your browser with zero cloud storage.",
+    highlight: "Zero cloud exposure • Instant vector rendering",
   },
   {
     num: "02",
-    icon: Sparkles,
-    title: "Edit and Restore with AI",
-    desc: "The AI Document Restoration Assistant analyses your document and offers suggestions for spelling, grammar, readability, and damaged-text reconstruction. You review every suggestion before applying it. RELEAF clearly marks any AI-generated text as a suggestion and never silently modifies your document.",
-    notes: [
-      "In demo mode, sample interactions are shown when no API key is configured.",
-      "Real AI integration reads credentials from server-side environment variables only.",
-    ],
+    icon: MousePointer2,
+    title: "2. Canva-Style Visual Selection & Deletion",
+    desc: "Interact with individual paragraphs, titles, and graphical elements directly on an A4 proportion canvas. Select elements, drag to reposition, edit typography inline, or press Delete/Backspace to permanently omit them.",
+    highlight: "Keyboard shortcuts • Drag to reposition • Real vector deletions",
   },
   {
     num: "03",
-    icon: Layers,
-    title: "Simulate the De-Inking Process",
-    desc: "Once your changes are confirmed, RELEAF identifies the physical regions on the printed page that would need to be de-inked. You can preview these regions and check paper compatibility before any physical operation is attempted. All physical steps are clearly labelled as simulations until compatible hardware is connected.",
-    notes: [
-      "Physical de-inking technology is under development.",
-      "This step is a visual simulation only — no actual ink removal occurs.",
-      "Compatible hardware will be required for real restoration.",
-    ],
-    sim: true,
+    icon: Sparkles,
+    title: "3. AI Document Restoration & Corrections",
+    desc: "The integrated AI Assistant analyzes your text for typos, readability flaws, and formatting inconsistencies. Review and apply proposed improvements with a single click before committing to print.",
+    highlight: "Spelling radar • Grammar suggestions • Client-side demo mode",
   },
   {
     num: "04",
+    icon: ShieldCheck,
+    title: "4. DocumentGuard Integrity Review",
+    desc: "Every restoration passes through automated DocumentGuard verification. Educational certificates and official monetary transactions are evaluated with GREEN, AMBER, and RED security rules.",
+    highlight: "Anti-fraud gate • Sensitive document classification",
+  },
+  {
+    num: "05",
+    icon: Layers,
+    title: "5. Simulate Selective Ink Removal",
+    desc: "Preview the targeted physical de-inking coordinate mask. Rather than shredding or chemically re-pulping the paper, RELEAF targets only the exact micron coordinates that require ink dissolution.",
+    highlight: "Micron coordinate masking • Fibre preservation • Illustrated simulation",
+    sim: true,
+  },
+  {
+    num: "06",
     icon: Printer,
-    title: "Print and Reuse the Sheet",
-    desc: "With the de-inked area prepared, RELEAF aligns the corrected document to the same sheet of paper and sends it to the printer. The reuse cycle counter increments for this sheet. A recommended maximum of 1–2 reuse cycles applies in the prototype phase.",
-    notes: [
-      "Compatible physical hardware is required for this step.",
-      "Illustrated as a simulation in the current prototype.",
-    ],
+    title: "6. Print & Reuse the Physical Sheet",
+    desc: "Align the refreshed page in your printer tray and print the corrected document on the exact same physical sheet. The session reuse ledger increments the sheet cycle counter.",
+    highlight: "1–2 recommended reuse cycles • Fibre degradation < 2.5%",
     sim: true,
   },
 ];
@@ -57,77 +72,69 @@ export default function HowItWorksPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-24 pb-16 bg-cream min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
         <div className="container-narrow">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-forest mb-4">How It Works</h1>
-            <p className="text-charcoal/60 text-lg max-w-xl mx-auto">
-              From used document to freshly printed page — a step-by-step guide
-              to the RELEAF workflow.
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="pill-badge mb-3">System Architecture</span>
+            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+              The Paper Restoration Lifecycle
+            </h1>
+            <p className="text-charcoal/70 text-base leading-relaxed">
+              From document import and visual editing to selective ink release and circular printing.
             </p>
           </div>
 
-          <div className="space-y-6">
-            {steps.map(({ num, icon: Icon, title, desc, notes, sim }, i) => (
-              <section
+          {/* Sequential Step Cards */}
+          <div className="space-y-6 max-w-4xl mx-auto">
+            {steps.map(({ num, icon: Icon, title, desc, highlight, sim }) => (
+              <div
                 key={num}
-                className="bg-white rounded-2xl p-8 border border-sage/40"
-                aria-labelledby={`step-${i}-heading`}
+                className="bg-white rounded-3xl p-8 border border-black/5 shadow-xs card-hover flex flex-col md:flex-row gap-6 items-start"
               >
-                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-8 items-start">
-                  {/* Step number */}
-                  <div className="flex flex-col items-center">
-                    <span className="text-5xl font-black text-primary/20 font-mono leading-none mb-2">
-                      {num}
+                <div className="w-14 h-14 rounded-2xl bg-forest text-lime flex items-center justify-center shrink-0 shadow-xs">
+                  <Icon className="w-7 h-7" />
+                </div>
+
+                <div className="flex-1 space-y-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-mono text-xs font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
+                      STEP {num}
                     </span>
-                    <div className="w-12 h-12 rounded-xl bg-sage flex items-center justify-center">
-                      <Icon className="w-6 h-6 text-primary" aria-hidden="true" />
-                    </div>
+                    <h2 className="text-xl font-bold text-forest">{title}</h2>
+                    {sim && <span className="sim-badge">SIMULATION</span>}
                   </div>
 
-                  {/* Content */}
-                  <div>
-                    <div className="flex flex-wrap items-center gap-3 mb-3">
-                      <h2
-                        id={`step-${i}-heading`}
-                        className="text-2xl font-bold text-forest"
-                      >
-                        {title}
-                      </h2>
-                      {sim && <span className="sim-badge">SIMULATION</span>}
-                    </div>
-                    <p className="text-charcoal/70 leading-relaxed mb-4">{desc}</p>
+                  <p className="text-sm text-charcoal/70 leading-relaxed">{desc}</p>
 
-                    {notes.length > 0 && (
-                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                        <div className="flex items-start gap-2">
-                          <AlertTriangle
-                            className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0"
-                            aria-hidden="true"
-                          />
-                          <ul className="space-y-1" role="list">
-                            {notes.map((n) => (
-                              <li key={n} className="text-sm text-amber-800">
-                                {n}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
+                  <div className="pt-2 flex items-center gap-2 text-xs font-semibold text-primary">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    <span>{highlight}</span>
                   </div>
                 </div>
-              </section>
+              </div>
             ))}
           </div>
 
-          <div className="text-center mt-16">
+          {/* Honest Prototype Notice Callout */}
+          <div className="mt-12 max-w-4xl mx-auto p-6 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+            <div className="space-y-1">
+              <p className="font-bold text-sm text-amber-950">Prototype Hardware Transparency</p>
+              <p className="leading-relaxed text-amber-900/80">
+                Physical de-inking chambers and photothermal ink removal heads are currently undergoing research prototyping. All de-inking steps demonstrated on this website are interactive simulations. Real compatible hardware will be required for physical ink release.
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom CTA */}
+          <div className="mt-16 text-center">
             <Link
               href="/workspace"
-              className="inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-primary text-white font-semibold hover:bg-forest transition-colors text-lg"
+              className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-forest hover:bg-forest-light text-white font-bold text-sm shadow-md transition-all hover:-translate-y-0.5"
             >
-              Try the Workspace
-              <ArrowRight className="w-5 h-5" aria-hidden="true" />
+              <span>Test the Workflow in Studio</span>
+              <ArrowRight className="w-4 h-4 text-lime" />
             </Link>
           </div>
         </div>

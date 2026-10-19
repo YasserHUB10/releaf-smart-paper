@@ -2,45 +2,37 @@ import type { Metadata } from "next";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
-import { HelpCircle, ArrowRight, AlertTriangle } from "lucide-react";
+import { HelpCircle, ArrowRight, AlertTriangle, FileText, Shield, Layers, Printer } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Help",
-  description: "RELEAF help and troubleshooting guide.",
+  title: "Help & FAQ",
+  description: "Frequently asked questions and guides for the RELEAF smart paper restoration platform.",
 };
 
 const faqs = [
   {
-    q: "Why does the de-inking feature say SIMULATION?",
-    a: "The physical de-inking hardware is currently under development. The simulation demonstrates the workflow so you can understand the full RELEAF experience before compatible hardware is available.",
+    q: "How does Canva-style editing work in the RELEAF Studio?",
+    a: "When you upload a document or use our demo document, RELEAF parses it into editable text and shape elements. You can click any element to inspect, drag to reposition, reformat text, or hit Delete on your keyboard to permanently remove it.",
   },
   {
-    q: "What file formats does RELEAF support?",
-    a: "The workspace accepts PDF, PNG, JPG, and JPEG files up to 10 MB. DOCX support may be added in future versions.",
+    q: "Why is the de-inking feature labelled as a SIMULATION?",
+    a: "The physical photothermal laser and bio-solvent chambers are under active prototyping. The simulation demonstrates the micron coordinate mapping and sheet reuse logic until physical hardware is commercially deployed.",
   },
   {
-    q: "Are my documents sent to a server?",
-    a: "No. In the current prototype, documents are processed entirely in your browser. If a real AI API key is configured, you will be prompted for consent before any document content is sent to an external service.",
+    q: "Are deleted elements genuinely removed when I export to PDF?",
+    a: "Yes! Unlike cosmetic redaction that places white rectangles over text, RELEAF's vector PDF generator permanently excludes deleted elements from the exported document's content stream.",
   },
   {
-    q: "Why is DocumentGuard blocking my operation?",
-    a: "DocumentGuard is designed to prevent fraudulent document alterations. If your operation is blocked, a reason is shown alongside a suggested legitimate alternative. Editing financial amounts, certificate names, or identification numbers triggers a block.",
+    q: "Are my uploaded documents sent to external cloud servers?",
+    a: "No. All document uploads, visual editing, element parsing, and PDF exports run 100% locally in your web browser. Nothing is uploaded or stored on external servers.",
   },
   {
-    q: "What paper types are compatible with de-inking?",
-    a: "Standard office paper, bond paper, recycled paper, notebook paper, and previously printed paper are provisionally compatible in simulation mode. Glossy, coated, thin, and coloured paper are not suitable. Visit the Paper Compatibility page for a full list.",
+    q: "Why does DocumentGuard block certain modifications?",
+    a: "DocumentGuard protects document integrity and prevents fraud. Modifying monetary numbers on invoices or recipient names on university degrees/transcripts triggers automatic RED security halts.",
   },
   {
-    q: "How many times can I reuse a sheet?",
-    a: "RELEAF recommends a maximum of 1–2 reuse cycles in the prototype phase. The reuse counter is tracked per session. A sheet should not be processed indefinitely.",
-  },
-  {
-    q: "The AI assistant shows demo responses — how do I enable real AI?",
-    a: "Configure the RELEAF_AI_KEY environment variable on the server. Without it, the assistant shows clearly labelled sample interactions. The API key must never be placed in client-side code.",
-  },
-  {
-    q: "The 3D scene on the homepage is not loading.",
-    a: "The 3D scene requires WebGL support. If WebGL is unavailable in your browser, a static alternative is shown automatically. The homepage content, navigation, and all core features remain fully accessible without the 3D scene.",
+    q: "Which paper types can be reused?",
+    a: "Standard office bond (80 gsm), recycled paper, and notebook paper are compatible in simulation mode. Glossy photo paper and ultra-thin paper (< 60 gsm) are not suitable.",
   },
 ];
 
@@ -48,53 +40,51 @@ export default function HelpPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-24 pb-16 bg-cream min-h-screen">
-        <div className="container-narrow max-w-3xl">
-          <div className="flex items-start gap-4 mb-10">
-            <div className="w-12 h-12 rounded-2xl bg-primary flex items-center justify-center flex-shrink-0">
-              <HelpCircle className="w-6 h-6 text-white" aria-hidden="true" />
-            </div>
-            <div>
-              <h1 className="text-4xl font-bold text-forest">Help & FAQ</h1>
-              <p className="text-charcoal/60 mt-1">
-                Common questions and troubleshooting for RELEAF.
-              </p>
-            </div>
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
+        <div className="container-narrow max-w-4xl">
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="pill-badge mb-3">Knowledge Base</span>
+            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+              Help & Frequently Asked Questions
+            </h1>
+            <p className="text-charcoal/70 text-base leading-relaxed">
+              Find answers about Canva editing, selective de-inking, DocumentGuard, and privacy.
+            </p>
           </div>
 
-          <section className="space-y-4" aria-labelledby="faq-heading">
-            <h2 id="faq-heading" className="sr-only">Frequently asked questions</h2>
-            {faqs.map((f, i) => (
+          {/* FAQ Accordion List */}
+          <div className="space-y-4 mb-16">
+            {faqs.map(({ q, a }) => (
               <div
-                key={i}
-                className="bg-white rounded-2xl border border-sage/40 p-6"
+                key={q}
+                className="bg-white rounded-3xl p-6 sm:p-7 border border-black/5 shadow-xs space-y-2 card-hover"
               >
-                <h3 className="font-semibold text-charcoal mb-2 flex items-start gap-2">
-                  <span className="text-primary text-sm font-bold mt-0.5">Q.</span>
-                  {f.q}
+                <h3 className="font-bold text-base text-forest flex items-start gap-2.5">
+                  <span className="text-primary font-mono text-sm mt-0.5">Q.</span>
+                  <span>{q}</span>
                 </h3>
-                <p className="text-sm text-charcoal/70 leading-relaxed pl-5">{f.a}</p>
+                <p className="text-xs sm:text-sm text-charcoal/70 pl-6 leading-relaxed">
+                  {a}
+                </p>
               </div>
             ))}
-          </section>
+          </div>
 
-          <div className="mt-10 bg-forest text-white rounded-2xl p-8">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-lime flex-shrink-0 mt-0.5" aria-hidden="true" />
-              <div>
-                <h2 className="font-bold mb-2">Still having trouble?</h2>
-                <p className="text-sage/80 text-sm leading-relaxed mb-4">
-                  RELEAF is a prototype presented for hackathon demonstration. No live customer support exists at this stage. Please refer to the documentation for technical issues.
-                </p>
-                <Link
-                  href="/about"
-                  className="inline-flex items-center gap-1.5 text-lime text-sm font-semibold hover:opacity-80 transition-opacity"
-                >
-                  Learn more about limitations
-                  <ArrowRight className="w-4 h-4" aria-hidden="true" />
-                </Link>
-              </div>
+          {/* Need help banner */}
+          <div className="bg-forest text-white rounded-3xl p-8 sm:p-10 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+            <div className="space-y-1">
+              <h3 className="font-bold text-xl">Ready to test the studio yourself?</h3>
+              <p className="text-xs text-sage/80">Experience real-time element selection, deletion, and vector export.</p>
             </div>
+
+            <Link
+              href="/workspace"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-lime text-forest font-bold text-xs hover:bg-white transition-all shadow-md shrink-0"
+            >
+              <span>Launch Studio</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
           </div>
         </div>
       </main>

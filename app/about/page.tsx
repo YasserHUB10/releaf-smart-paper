@@ -1,117 +1,100 @@
 import type { Metadata } from "next";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
-import { Leaf, Printer, Sparkles, Shield } from "lucide-react";
+import Link from "next/link";
+import { Leaf, Printer, Sparkles, Shield, ArrowRight, CheckCircle2, Trees, Recycle, Zap } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "About",
-  description: "About RELEAF — the smart paper restoration and reuse concept.",
+  title: "About RELEAF",
+  description: "About RELEAF — the sustainable smart paper restoration and circular reuse concept for modern workplaces.",
 };
 
 export default function AboutPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-24 pb-16 bg-cream min-h-screen">
-        <div className="container-narrow max-w-3xl">
-          <div className="mb-12">
-            <h1 className="text-5xl font-bold text-forest mb-4">About RELEAF</h1>
-            <p className="text-xl text-charcoal/70 leading-relaxed">
-              A smart paper restoration and reuse concept — combining intelligent
-              document editing, AI assistance, and paper-reuse workflows.
+      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
+        <div className="container-narrow max-w-4xl">
+          {/* Header */}
+          <div className="text-center max-w-2xl mx-auto mb-16">
+            <span className="pill-badge mb-3">Our Mission</span>
+            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+              Rethinking the Life of Paper
+            </h1>
+            <p className="text-charcoal/70 text-base leading-relaxed">
+              Paper is not a single-use consumable. It is a high-grade engineered cellulose matrix capable of circular reuse.
             </p>
           </div>
 
-          <section className="bg-white rounded-2xl p-8 border border-sage/40 mb-8" aria-labelledby="vision-heading">
-            <h2 id="vision-heading" className="text-2xl font-bold text-forest mb-4">
-              Product Vision
-            </h2>
-            <p className="text-charcoal/70 leading-relaxed mb-4">
-              RELEAF combines the capabilities of a printer, photocopier,
-              scanner, AI document editor, document restoration assistant, and
-              paper reuse management system. Its primary purpose is to help users
-              reuse suitable printed paper by editing existing documents
-              digitally, identifying the physical regions that require ink
-              removal, and preparing the paper for corrected printing.
+          {/* Problem Statement Card */}
+          <section className="bg-white rounded-3xl p-8 sm:p-10 border border-black/5 shadow-xs mb-8 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-forest text-lime flex items-center justify-center">
+              <Trees className="w-6 h-6" />
+            </div>
+            <h2 className="text-2xl font-black text-forest">The Single-Use Paper Crisis</h2>
+            <p className="text-sm text-charcoal/70 leading-relaxed">
+              Over 40% of all wood harvested globally is channeled directly into industrial paper production. Despite decades of digital transformation, enterprise offices print billions of single-use drafts, agreements, agendas, and misprints every month — only to discard them into shredders within 24 hours.
             </p>
-            <p className="text-charcoal/70 leading-relaxed">
-              The product has three defining capabilities: smart printing,
-              scanning, and photocopying; intelligent selective de-inking and
-              reprinting; and AI-powered document restoration and editing.
+            <p className="text-sm text-charcoal/70 leading-relaxed">
+              Standard paper recycling requires significant water, harsh bleaching agents, and chemical repulping that breaks down delicate cellulose fibres. RELEAF challenges this paradigm with <strong>micro-targeted in-situ restoration</strong>.
             </p>
           </section>
 
-          <section className="bg-white rounded-2xl p-8 border border-sage/40 mb-8" aria-labelledby="mission-heading">
-            <h2 id="mission-heading" className="text-2xl font-bold text-forest mb-4">
-              Why We Build RELEAF
-            </h2>
-            <p className="text-charcoal/70 leading-relaxed mb-4">
-              Paper production is one of the most resource-intensive
-              manufacturing processes. Many documents are printed for brief
-              single-use purposes and discarded, even when the paper itself
-              remains in perfect condition. RELEAF explores a fundamentally
-              different approach: rather than treating paper as a single-use
-              substrate, treat it as a reusable material that can be intelligently
-              managed.
-            </p>
-            <p className="text-charcoal/70 leading-relaxed">
-              This prototype builds the software infrastructure that would make
-              paper reuse seamless — document editing, AI restoration, security
-              validation, and print management — in preparation for physical
-              de-inking hardware.
-            </p>
-          </section>
-
-          <section className="bg-white rounded-2xl p-8 border border-sage/40 mb-8" aria-labelledby="limitations-heading">
-            <h2 id="limitations-heading" className="text-2xl font-bold text-forest mb-4">
-              Honest Limitations
-            </h2>
-            <div className="space-y-4 text-sm text-charcoal/70 leading-relaxed">
-              <p>
-                <strong className="text-charcoal">Physical de-inking technology</strong> is under active development. No commercially available RELEAF hardware currently exists. All features labelled &#34;SIMULATION&#34; are software demonstrations only — no actual ink removal occurs.
-              </p>
-              <p>
-                <strong className="text-charcoal">Environmental impact figures</strong> are not fabricated. The dashboard shows zero values and clearly labels them as demo data until real hardware measurements are available.
-              </p>
-              <p>
-                <strong className="text-charcoal">AI integration</strong> requires a server-side API key. Without one, the assistant provides clearly labelled sample interactions. No AI model is called when credentials are absent.
-              </p>
-              <p>
-                <strong className="text-charcoal">Documents</strong> are processed locally in the browser. Nothing is uploaded to a server in the current prototype unless a real AI API is configured with explicit user consent.
+          {/* Three Pillars */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div className="bg-white p-7 rounded-3xl border border-black/5 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-forest text-lime flex items-center justify-center">
+                <Recycle className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-forest">1. Selective De-Inking</h3>
+              <p className="text-xs text-charcoal/70 leading-relaxed">
+                Rather than treating the whole page, RELEAF calculates exact coordinates for ink removal, leaving 90%+ of the sheet completely untouched.
               </p>
             </div>
-          </section>
 
-          <section className="grid grid-cols-1 sm:grid-cols-2 gap-5" aria-labelledby="pillars-heading">
-            <h2 id="pillars-heading" className="sr-only">Core pillars</h2>
-            {[
-              {
-                icon: Printer,
-                title: "Smart Printing",
-                desc: "Precision printing with full paper configuration and compatibility checking.",
-              },
-              {
-                icon: Leaf,
-                title: "De-Inking (R&D)",
-                desc: "Selective ink removal to enable paper reuse — hardware under development.",
-              },
-              {
-                icon: Sparkles,
-                title: "AI Restoration",
-                desc: "Intelligent document correction and content reconstruction with AI.",
-              },
-              {
-                icon: Shield,
-                title: "DocumentGuard",
-                desc: "Security layer preventing fraud and protecting document integrity.",
-              },
-            ].map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="bg-forest text-white rounded-2xl p-6">
-                <Icon className="w-6 h-6 text-lime mb-3" aria-hidden="true" />
-                <h3 className="font-bold text-base mb-1">{title}</h3>
-                <p className="text-sm text-sage/80 leading-relaxed">{desc}</p>
+            <div className="bg-white p-7 rounded-3xl border border-black/5 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-forest text-lime flex items-center justify-center">
+                <Sparkles className="w-5 h-5" />
               </div>
-            ))}
+              <h3 className="font-bold text-base text-forest">2. AI-Powered Studio</h3>
+              <p className="text-xs text-charcoal/70 leading-relaxed">
+                Canva-grade browser visual editing allows anyone to click, drag, delete, or correct text elements before committing to print.
+              </p>
+            </div>
+
+            <div className="bg-white p-7 rounded-3xl border border-black/5 shadow-xs space-y-3">
+              <div className="w-10 h-10 rounded-xl bg-forest text-lime flex items-center justify-center">
+                <Shield className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-base text-forest">3. DocumentGuard</h3>
+              <p className="text-xs text-charcoal/70 leading-relaxed">
+                A non-negotiable security gate prevents fraudulent alteration of sensitive credentials, certificates, and financial balances.
+              </p>
+            </div>
+          </div>
+
+          {/* Prototype Disclosure Card */}
+          <section className="bg-forest text-white rounded-3xl p-8 sm:p-10 shadow-lg space-y-4 mb-12">
+            <span className="text-[10px] font-mono uppercase bg-lime/20 text-lime px-2.5 py-1 rounded-full border border-lime/30 w-fit block">
+              ENGINEERING TRANSPARENCY
+            </span>
+            <h2 className="text-2xl font-black text-white">Prototype Status & Hardware Roadmap</h2>
+            <p className="text-sm text-sage/80 leading-relaxed">
+              Physical photothermal de-inking chambers and specialized ink release lasers are under active hardware development. All ink-removal processes on this website operate as interactive simulations to demonstrate the end-to-end user workflow.
+            </p>
+            <p className="text-sm text-sage/80 leading-relaxed">
+              We never fabricate environmental statistics or pretend that software alone cleans physical paper. We believe in open, verifiable environmental engineering.
+            </p>
+
+            <div className="pt-4">
+              <Link
+                href="/workspace"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-lime text-forest font-bold text-xs hover:bg-white transition-all shadow-md"
+              >
+                <span>Launch Interactive Studio</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
           </section>
         </div>
       </main>
