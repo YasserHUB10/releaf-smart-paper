@@ -1,16 +1,11 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Upload,
   FileText,
   X,
-  ChevronLeft,
-  ChevronRight,
-  ZoomIn,
-  ZoomOut,
-  RotateCw,
   Sparkles,
   Shield,
   Layers,
@@ -18,8 +13,27 @@ import {
   CheckCircle2,
   Clock,
   Info,
+  Sliders,
+  Type,
+  Plus,
+  Trash2,
+  Undo2,
+  Redo2,
+  Eraser,
+  Printer,
+  Download,
+  Share2,
+  Check,
+  ChevronRight,
+  RefreshCw,
+  FileCheck,
+  Zap,
+  MousePointer2,
 } from "lucide-react";
 import type { ChangeEvent, DragEvent } from "react";
+import InteractiveDocumentCanvas, {
+  DocElement,
+} from "@/components/document/InteractiveDocumentCanvas";
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 type WorkflowState =
@@ -40,12 +54,85 @@ interface UploadedFile {
   type: "pdf" | "image";
 }
 
+// Default initial smart document elements extracted by simulated OCR
+const DEFAULT_INITIAL_ELEMENTS: DocElement[] = [
+  {
+    id: "el-header-title",
+    type: "heading",
+    content: "QUARTERLY SUSTAINABILITY REPORT",
+    x: 8,
+    y: 8,
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#123B2A",
+  },
+  {
+    id: "el-header-sub",
+    type: "subheading",
+    content: "LEAF Technology Group • Document Ref: #RLF-2026-A4",
+    x: 8,
+    y: 13,
+    fontSize: 12,
+    fontWeight: "500",
+    color: "#287A50",
+  },
+  {
+    id: "el-body-p1",
+    type: "text",
+    content:
+      "This document was printed on recycled standard 80 gsm bond paper. In accordance with zero-waste workplace targets, all misprinted paragraphs or superseded drafts must be flagged for digital correction.",
+    x: 8,
+    y: 20,
+    fontSize: 13,
+    fontWeight: "400",
+    color: "#202821",
+  },
+  {
+    id: "el-metric-box",
+    type: "heading",
+    content: "STATUS: PROTOTYPE HARDWARE RESTORATION SIMULATION",
+    x: 8,
+    y: 31,
+    fontSize: 14,
+    fontWeight: "600",
+    color: "#287A50",
+  },
+  {
+    id: "el-sample-error",
+    type: "text",
+    content:
+      "Draft Note: The meeting is schedueled for Tuseday next week to discuss ink removal.",
+    x: 8,
+    y: 38,
+    fontSize: 13,
+    fontWeight: "400",
+    color: "#B45309",
+  },
+  {
+    id: "el-body-p2",
+    type: "text",
+    content:
+      "RELEAF allows selective de-inking without re-pulping. Click any element on this page to select, edit content, or press Delete on your keyboard to instantly remove it.",
+    x: 8,
+    y: 47,
+    fontSize: 13,
+    fontWeight: "400",
+    color: "#202821",
+  },
+  {
+    id: "el-footer-auth",
+    type: "subheading",
+    content: "Authorized by RELEAF DocumentGuard Integrity Validation Module",
+    x: 8,
+    y: 88,
+    fontSize: 11,
+    fontWeight: "500",
+    color: "#6B7280",
+  },
+];
+
 // ── File Upload Zone ──────────────────────────────────────────────────────────
-function UploadZone({
-  onFile,
-}: {
-  onFile: (file: UploadedFile) => void;
-}) {
+function UploadZone({ onFile }: { onFile: (file: UploadedFile) => void }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragging, setDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -83,16 +170,44 @@ function UploadZone({
     if (f) process(f);
   };
 
+  const handleDemoDoc = () => {
+    // Generate simulated sample document
+    const mockFile = new File(["RELEAF Demo Document"], "Sustainability_Report_2026.pdf", {
+      type: "application/pdf",
+    });
+    onFile({
+      file: mockFile,
+      url: "",
+      type: "pdf",
+    });
+  };
+
   return (
-    <div className="flex flex-col items-center gap-4 py-12">
+    <div className="flex flex-col items-center justify-center min-h-[520px] p-8 text-center max-w-2xl mx-auto">
+      <div className="relative mb-6">
+        <div className="w-20 h-20 rounded-3xl bg-forest/5 flex items-center justify-center text-primary border border-primary/20 shadow-inner">
+          <Upload className="w-8 h-8 animate-pulse text-primary" />
+        </div>
+        <div className="absolute -bottom-1 -right-1 bg-lime text-forest text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+          AI OCR READY
+        </div>
+      </div>
+
+      <h2 className="text-2xl font-bold text-forest mb-2">
+        Upload Document to Interactive Studio
+      </h2>
+      <p className="text-sm text-charcoal/60 mb-6 max-w-md">
+        Upload a PDF or scan to inspect, select, and delete individual document elements with Canva-grade interactive editing.
+      </p>
+
       <div
         role="button"
         tabIndex={0}
         aria-label="Upload document — drag and drop or click to browse"
-        className={`w-full max-w-lg border-2 border-dashed rounded-2xl p-12 text-center cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+        className={`w-full border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
           dragging
-            ? "border-primary bg-primary/5"
-            : "border-sage hover:border-primary/60 bg-sage/20"
+            ? "border-primary bg-primary/10 scale-[1.01]"
+            : "border-sage hover:border-primary/60 bg-white/60 hover:bg-white shadow-sm"
         }`}
         onClick={() => inputRef.current?.click()}
         onKeyDown={(e) => e.key === "Enter" && inputRef.current?.click()}
@@ -103,18 +218,15 @@ function UploadZone({
         onDragLeave={() => setDragging(false)}
         onDrop={onDrop}
       >
-        <Upload
-          className="w-10 h-10 text-primary/50 mx-auto mb-4"
-          aria-hidden="true"
-        />
-        <p className="text-base font-semibold text-charcoal mb-1">
-          Drop your document here
+        <FileText className="w-8 h-8 text-primary/40 mx-auto mb-2" />
+        <p className="text-sm font-semibold text-charcoal mb-0.5">
+          Drag & drop your PDF or image here
         </p>
-        <p className="text-sm text-charcoal/50">
-          or <span className="text-primary underline underline-offset-2">browse files</span>
+        <p className="text-xs text-charcoal/50">
+          or <span className="text-primary font-medium underline">browse from your computer</span>
         </p>
-        <p className="text-xs text-charcoal/40 mt-3">
-          PDF, PNG, JPG — up to 10 MB
+        <p className="text-[11px] text-charcoal/40 mt-3 font-mono">
+          PDF, PNG, JPG • Up to 10 MB
         </p>
         <input
           ref={inputRef}
@@ -122,16 +234,29 @@ function UploadZone({
           accept=".pdf,.png,.jpg,.jpeg"
           className="sr-only"
           onChange={onChange}
-          aria-hidden="true"
         />
       </div>
+
+      <div className="flex items-center gap-3 mt-6">
+        <div className="h-[1px] w-12 bg-sage" />
+        <span className="text-xs text-charcoal/40 font-medium">OR TRY A DEMO DOCUMENT</span>
+        <div className="h-[1px] w-12 bg-sage" />
+      </div>
+
+      <button
+        onClick={handleDemoDoc}
+        className="mt-4 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-forest text-lime text-xs font-semibold hover:bg-forest/90 transition-all shadow-sm hover:shadow"
+      >
+        <Sparkles className="w-3.5 h-3.5" />
+        <span>Load Interactive Demo Document (One-click)</span>
+      </button>
 
       {error && (
         <div
           role="alert"
-          className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm max-w-lg w-full"
+          className="flex items-center gap-2 text-red-700 bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-xs max-w-lg w-full mt-4"
         >
-          <AlertTriangle className="w-4 h-4 flex-shrink-0" aria-hidden="true" />
+          <AlertTriangle className="w-4 h-4 flex-shrink-0" />
           {error}
         </div>
       )}
@@ -139,99 +264,7 @@ function UploadZone({
   );
 }
 
-// ── Document Viewer ───────────────────────────────────────────────────────────
-function DocumentViewer({
-  uploaded,
-  onRemove,
-}: {
-  uploaded: UploadedFile;
-  onRemove: () => void;
-}) {
-  const [zoom, setZoom] = useState(1);
-  const [rotation, setRotation] = useState(0);
-
-  return (
-    <div className="flex flex-col h-full min-h-[400px]">
-      {/* Toolbar */}
-      <div className="flex items-center gap-2 p-3 border-b border-sage bg-white rounded-t-xl flex-wrap">
-        <FileText className="w-4 h-4 text-primary flex-shrink-0" aria-hidden="true" />
-        <span className="text-sm font-medium text-charcoal truncate flex-1">
-          {uploaded.file.name}
-        </span>
-        <span className="text-xs text-charcoal/40">
-          {(uploaded.file.size / 1024).toFixed(0)} KB
-        </span>
-
-        <div className="flex items-center gap-1 ml-2" role="group" aria-label="View controls">
-          <button
-            onClick={() => setZoom((z) => Math.max(0.5, z - 0.25))}
-            className="p-1.5 rounded hover:bg-sage/50 transition-colors"
-            aria-label="Zoom out"
-          >
-            <ZoomOut className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-          <span className="text-xs w-10 text-center" aria-label={`Zoom ${Math.round(zoom * 100)}%`}>
-            {Math.round(zoom * 100)}%
-          </span>
-          <button
-            onClick={() => setZoom((z) => Math.min(3, z + 0.25))}
-            className="p-1.5 rounded hover:bg-sage/50 transition-colors"
-            aria-label="Zoom in"
-          >
-            <ZoomIn className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-          <button
-            onClick={() => setRotation((r) => (r + 90) % 360)}
-            className="p-1.5 rounded hover:bg-sage/50 transition-colors"
-            aria-label="Rotate 90 degrees"
-          >
-            <RotateCw className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-          <button
-            onClick={onRemove}
-            className="p-1.5 rounded hover:bg-red-50 text-charcoal hover:text-red-600 transition-colors"
-            aria-label="Remove document"
-          >
-            <X className="w-3.5 h-3.5" aria-hidden="true" />
-          </button>
-        </div>
-      </div>
-
-      {/* Preview area */}
-      <div className="flex-1 overflow-auto bg-charcoal/5 rounded-b-xl flex items-center justify-center p-4">
-        {uploaded.type === "image" ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={uploaded.url}
-            alt={`Preview of ${uploaded.file.name}`}
-            style={{
-              transform: `scale(${zoom}) rotate(${rotation}deg)`,
-              transformOrigin: "center",
-              transition: "transform 0.2s ease",
-              maxWidth: "100%",
-              maxHeight: "100%",
-            }}
-            className="object-contain rounded shadow-lg"
-          />
-        ) : (
-          <iframe
-            src={`${uploaded.url}#view=FitH`}
-            title={`PDF preview: ${uploaded.file.name}`}
-            className="w-full rounded shadow-lg"
-            style={{
-              height: "500px",
-              transform: `scale(${zoom}) rotate(${rotation}deg)`,
-              transformOrigin: "top center",
-              transition: "transform 0.2s ease",
-            }}
-          />
-        )}
-      </div>
-    </div>
-  );
-}
-
-// ── DocumentGuard Panel ───────────────────────────────────────────────────────
+// ── DocumentGuard Realtime Classification ─────────────────────────────────────
 type SecurityStatus = "green" | "amber" | "red";
 
 interface SecurityResult {
@@ -276,190 +309,33 @@ function classifyDocument(filename: string): SecurityResult {
     status: "green",
     label: "Permitted",
     reason:
-      "No sensitive document patterns detected. The operation may proceed under the current rules.",
-    action: "Continue with your document restoration workflow.",
+      "No sensitive document patterns detected. Element-level editing is authorized under current rules.",
+    action: "Continue with your selective editing or restoration workflow.",
   };
 }
 
-function DocumentGuardPanel({ filename }: { filename: string }) {
-  const result = classifyDocument(filename);
-  const statusClass = {
-    green: "status-green",
-    amber: "status-amber",
-    red: "status-red",
-  }[result.status];
-
-  return (
-    <div className={`rounded-xl border p-4 ${statusClass}`}>
-      <div className="flex items-start gap-3">
-        <Shield className="w-5 h-5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-        <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="font-bold text-sm">DocumentGuard</span>
-            <span className="text-xs font-semibold uppercase tracking-wider opacity-80">
-              {result.label}
-            </span>
-          </div>
-          <p className="text-xs leading-relaxed mb-2">{result.reason}</p>
-          <p className="text-xs font-medium">{result.action}</p>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── AI Assistant Panel ────────────────────────────────────────────────────────
-const AI_DEMO_SUGGESTIONS = [
-  {
-    type: "spelling",
-    original: 'The meeting is "schedueled" for Tuseday.',
-    corrected: 'The meeting is "scheduled" for Tuesday.',
-    confidence: "High",
-  },
-  {
-    type: "readability",
-    original: "The document contains information pertaining to the aforementioned matter.",
-    corrected: "The document contains information about this matter.",
-    confidence: "Medium",
-  },
-];
-
-function AIAssistantPanel({ hasDocument }: { hasDocument: boolean }) {
-  const [applied, setApplied] = useState<Set<number>>(new Set());
-
-  if (!hasDocument) {
-    return (
-      <div className="text-center py-8 text-charcoal/40">
-        <Sparkles className="w-8 h-8 mx-auto mb-2 opacity-30" aria-hidden="true" />
-        <p className="text-sm">Upload a document to see AI suggestions</p>
-      </div>
-    );
-  }
-
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-4">
-        <Sparkles className="w-4 h-4 text-primary" aria-hidden="true" />
-        <span className="text-sm font-semibold text-charcoal">AI Suggestions</span>
-        <span className="ml-auto sim-badge">DEMO MODE</span>
-      </div>
-
-      <div className="bg-amber-50 border border-amber-200 rounded-lg px-3 py-2 text-xs text-amber-800 mb-4">
-        No AI API key configured. Showing sample interactions only.
-      </div>
-
-      <div className="space-y-3">
-        {AI_DEMO_SUGGESTIONS.map((s, i) => (
-          <div
-            key={i}
-            className={`rounded-xl border p-3 text-xs transition-all ${
-              applied.has(i)
-                ? "bg-green-50 border-green-200 opacity-60"
-                : "bg-white border-sage"
-            }`}
-          >
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-primary capitalize">{s.type}</span>
-              <span className="text-charcoal/40">Confidence: {s.confidence}</span>
-            </div>
-            <p className="line-through text-charcoal/40 mb-1 text-[11px] leading-relaxed">
-              {s.original}
-            </p>
-            <p className="text-charcoal text-[11px] leading-relaxed">{s.corrected}</p>
-            {!applied.has(i) && (
-              <button
-                onClick={() => setApplied((prev) => new Set([...prev, i]))}
-                className="mt-2 px-3 py-1 rounded bg-primary/10 text-primary text-[11px] font-semibold hover:bg-primary/20 transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
-              >
-                Apply suggestion
-              </button>
-            )}
-            {applied.has(i) && (
-              <span className="flex items-center gap-1 mt-2 text-green-700 text-[11px]">
-                <CheckCircle2 className="w-3 h-3" aria-hidden="true" /> Applied
-              </span>
-            )}
-          </div>
-        ))}
-      </div>
-      <p className="text-xs text-charcoal/40 mt-4 text-center">
-        AI suggestions are for review only. Apply individually.
-      </p>
-    </div>
-  );
-}
-
-// ── De-Inking Workflow ────────────────────────────────────────────────────────
-const WORKFLOW_LABELS: Record<WorkflowState, string> = {
-  idle: "No document",
-  imported: "Document imported",
-  analysed: "Document analysed",
-  "changes-proposed": "Changes proposed",
-  "security-review": "Security review",
-  "paper-check": "Paper compatibility",
-  "awaiting-confirm": "Awaiting confirmation",
-  processing: "Processing…",
-  completed: "Completed",
-  failed: "Failed",
-};
-
-function WorkflowStepper({ state }: { state: WorkflowState }) {
-  const states: WorkflowState[] = [
-    "imported",
-    "analysed",
-    "changes-proposed",
-    "security-review",
-    "paper-check",
-    "awaiting-confirm",
-    "processing",
-    "completed",
-  ];
-
-  const currentIdx = states.indexOf(state);
-
-  return (
-    <div aria-label="Restoration workflow progress" role="progressbar" aria-valuenow={currentIdx + 1} aria-valuemax={states.length} aria-valuetext={WORKFLOW_LABELS[state]}>
-      <div className="flex gap-1">
-        {states.map((s, i) => (
-          <div
-            key={s}
-            className={`h-1.5 flex-1 rounded-full transition-all ${
-              i <= currentIdx
-                ? state === "failed"
-                  ? "bg-red-400"
-                  : "bg-primary"
-                : "bg-sage"
-            }`}
-            aria-hidden="true"
-          />
-        ))}
-      </div>
-      <p className="text-xs text-charcoal/50 mt-1 text-right" aria-live="polite">
-        {WORKFLOW_LABELS[state]}
-      </p>
-    </div>
-  );
-}
-
-// ── Main Workspace ────────────────────────────────────────────────────────────
+// ── Main Workspace Component ───────────────────────────────────────────────────
 export default function WorkspaceClient() {
   const [uploaded, setUploaded] = useState<UploadedFile | null>(null);
   const [workflowState, setWorkflowState] = useState<WorkflowState>("idle");
-  const [activeTab, setActiveTab] = useState<"editor" | "guard" | "deinker">("editor");
-  const [deinkRegion, setDeinkRegion] = useState(false);
-  const [confirmed, setConfirmed] = useState(false);
+  const [activeTab, setActiveTab] = useState<"editor" | "guard" | "deinker" | "elements">("editor");
+  const [elements, setElements] = useState<DocElement[]>(DEFAULT_INITIAL_ELEMENTS);
+  const [activeCanvasMode, setActiveCanvasMode] = useState<"select" | "deink-eraser" | "add-text">("select");
+  const [selectedElement, setSelectedElement] = useState<DocElement | null>(null);
+  const [appliedAI, setAppliedAI] = useState<Set<number>>(new Set());
+  const [isSimulating, setIsSimulating] = useState(false);
 
   const handleFile = useCallback((f: UploadedFile) => {
     setUploaded(f);
     setWorkflowState("imported");
-    setDeinkRegion(false);
-    setConfirmed(false);
+    setElements(DEFAULT_INITIAL_ELEMENTS);
   }, []);
 
   const handleRemove = useCallback(() => {
-    if (uploaded) URL.revokeObjectURL(uploaded.url);
+    if (uploaded?.url) URL.revokeObjectURL(uploaded.url);
     setUploaded(null);
     setWorkflowState("idle");
+    setSelectedElement(null);
   }, [uploaded]);
 
   const advance = () => {
@@ -480,254 +356,498 @@ export default function WorkspaceClient() {
     });
   };
 
-  const tabs = [
-    { id: "editor" as const, label: "Editor", icon: FileText },
-    { id: "guard" as const, label: "DocumentGuard", icon: Shield },
-    { id: "deinker" as const, label: "De-Inking", icon: Layers },
-  ];
+  const applyAISuggestion = (index: number) => {
+    if (index === 0) {
+      // Correct typo in elements
+      const updated = elements.map((el) =>
+        el.id === "el-sample-error"
+          ? {
+              ...el,
+              content:
+                "Corrected Note: The meeting is scheduled for Tuesday next week to discuss ink removal.",
+              color: "#287A50",
+              fontWeight: "500",
+            }
+          : el
+      );
+      setElements(updated);
+      setAppliedAI((prev) => new Set([...prev, 0]));
+    }
+  };
+
+  const runDeinkingSimulation = () => {
+    setIsSimulating(true);
+    setWorkflowState("processing");
+    setTimeout(() => {
+      setIsSimulating(false);
+      setWorkflowState("completed");
+    }, 2000);
+  };
+
+  const securityInfo = uploaded ? classifyDocument(uploaded.file.name) : null;
+  const deletedCount = elements.filter((e) => e.isDeleted).length;
 
   return (
-    <div className="flex flex-col min-h-screen bg-cream">
-      {/* Header */}
-      <header className="bg-white border-b border-sage px-4 py-3 flex items-center gap-4 flex-wrap">
-        <div className="flex items-center gap-2 font-bold text-forest text-lg">
-          <span className="flex items-center justify-center w-7 h-7 rounded-lg bg-primary">
-            <Layers className="w-3.5 h-3.5 text-white" aria-hidden="true" />
-          </span>
-          RELEAF Workspace
+    <div className="flex flex-col h-screen bg-[#F4F1E8] text-charcoal overflow-hidden font-sans">
+      {/* ── Top Header Navigation Bar ── */}
+      <header className="h-14 bg-white/95 backdrop-blur border-b border-sage/60 px-5 flex items-center justify-between z-30 shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-forest flex items-center justify-center shadow-sm">
+            <Layers className="w-4 h-4 text-lime" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-forest text-sm tracking-tight">RELEAF Studio</span>
+              <span className="text-[10px] bg-primary/10 text-primary font-semibold px-2 py-0.5 rounded-full border border-primary/20">
+                PROTOTYPE v2.4
+              </span>
+            </div>
+            {uploaded && (
+              <p className="text-[11px] text-charcoal/50 truncate max-w-[220px]">
+                {uploaded.file.name}
+              </p>
+            )}
+          </div>
         </div>
-        <div className="ml-auto flex items-center gap-3 flex-wrap">
+
+        {/* Center: Stage Pills */}
+        {uploaded && (
+          <div className="hidden md:flex items-center gap-1 bg-sage/30 px-3 py-1.5 rounded-full border border-sage/50 text-xs">
+            <span className="text-forest font-semibold flex items-center gap-1.5">
+              <FileCheck className="w-3.5 h-3.5 text-primary" />
+              <span>Canvas Elements: {elements.length}</span>
+            </span>
+            <span className="text-charcoal/30">•</span>
+            <span className="text-charcoal/60">
+              {deletedCount > 0 ? (
+                <span className="text-amber-700 font-medium">
+                  {deletedCount} flagged for ink removal
+                </span>
+              ) : (
+                "Select element to delete"
+              )}
+            </span>
+          </div>
+        )}
+
+        {/* Right actions */}
+        <div className="flex items-center gap-2">
           {uploaded && (
-            <WorkflowStepper state={workflowState} />
+            <>
+              <button
+                onClick={() => {
+                  const blob = new Blob([JSON.stringify(elements, null, 2)], {
+                    type: "application/json",
+                  });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `releaf-modified-${uploaded.file.name}.json`;
+                  a.click();
+                }}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-sage text-xs font-semibold text-charcoal hover:bg-sage/20 transition-colors"
+                title="Export edited document layout"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Export</span>
+              </button>
+
+              <button
+                onClick={runDeinkingSimulation}
+                disabled={isSimulating}
+                className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-primary hover:bg-forest text-white text-xs font-semibold shadow-sm transition-all disabled:opacity-50"
+              >
+                {isSimulating ? (
+                  <>
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Simulating De-inking…</span>
+                  </>
+                ) : (
+                  <>
+                    <Printer className="w-3.5 h-3.5 text-lime" />
+                    <span>Send to RELEAF</span>
+                  </>
+                )}
+              </button>
+            </>
           )}
         </div>
       </header>
 
-      <main className="flex-1 flex flex-col lg:flex-row overflow-hidden" aria-label="Document workspace">
-        {/* Left panel — upload / thumbnail */}
-        <aside
-          className="w-full lg:w-56 bg-white border-b lg:border-b-0 lg:border-r border-sage p-4 flex flex-col gap-4"
-          aria-label="Document panel"
-        >
-          <h2 className="text-xs font-semibold text-charcoal/50 uppercase tracking-wider">
-            Document
-          </h2>
+      {/* ── Main Workspace Body ── */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Toolbar Strip (Canva-style) */}
+        {uploaded && (
+          <aside className="w-16 bg-white border-r border-sage/50 flex flex-col items-center py-4 gap-4 shrink-0 z-20">
+            <button
+              onClick={() => setActiveTab("editor")}
+              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+                activeTab === "editor"
+                  ? "bg-forest text-lime shadow-md"
+                  : "text-charcoal/60 hover:bg-sage/30 hover:text-charcoal"
+              }`}
+              title="Canvas & Elements"
+            >
+              <MousePointer2 className="w-4 h-4" />
+              <span>Canvas</span>
+            </button>
 
-          {!uploaded && (
-            <p className="text-sm text-charcoal/40">
-              No document yet. Upload to begin.
-            </p>
+            <button
+              onClick={() => setActiveTab("elements")}
+              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+                activeTab === "elements"
+                  ? "bg-forest text-lime shadow-md"
+                  : "text-charcoal/60 hover:bg-sage/30 hover:text-charcoal"
+              }`}
+              title="Element Layer Tree"
+            >
+              <Layers className="w-4 h-4" />
+              <span>Layers</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("guard")}
+              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+                activeTab === "guard"
+                  ? "bg-forest text-lime shadow-md"
+                  : "text-charcoal/60 hover:bg-sage/30 hover:text-charcoal"
+              }`}
+              title="DocumentGuard Integrity"
+            >
+              <Shield className="w-4 h-4" />
+              <span>Guard</span>
+            </button>
+
+            <button
+              onClick={() => setActiveTab("deinker")}
+              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+                activeTab === "deinker"
+                  ? "bg-forest text-lime shadow-md"
+                  : "text-charcoal/60 hover:bg-sage/30 hover:text-charcoal"
+              }`}
+              title="De-inking Physical Simulator"
+            >
+              <Eraser className="w-4 h-4" />
+              <span>De-ink</span>
+            </button>
+
+            <div className="mt-auto flex flex-col gap-2">
+              <button
+                onClick={handleRemove}
+                className="w-10 h-10 rounded-xl text-red-500 hover:bg-red-50 flex items-center justify-center transition-colors"
+                title="Remove current document"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </aside>
+        )}
+
+        {/* Center: Canvas Studio */}
+        <main className="flex-1 flex flex-col relative overflow-hidden bg-[#0B0E0D]">
+          {!uploaded ? (
+            <div className="flex-1 bg-cream overflow-auto">
+              <UploadZone onFile={handleFile} />
+            </div>
+          ) : (
+            <div className="flex-1 p-4 md:p-6 overflow-hidden flex flex-col">
+              <InteractiveDocumentCanvas
+                fileName={uploaded.file.name}
+                fileType={uploaded.type}
+                fileUrl={uploaded.url}
+                elements={elements}
+                onElementsChange={setElements}
+                activeMode={activeCanvasMode}
+                onModeChange={setActiveCanvasMode}
+                onSelectElement={setSelectedElement}
+              />
+            </div>
           )}
+        </main>
 
-          {uploaded && (
-            <div className="space-y-2">
-              <div className="flex items-start gap-2 p-3 bg-sage/20 rounded-xl border border-sage">
-                <FileText className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <div className="min-w-0">
-                  <p className="text-xs font-semibold text-charcoal truncate">
-                    {uploaded.file.name}
+        {/* Right Drawer Panel (Properties & AI Assistant) */}
+        {uploaded && (
+          <aside className="w-80 bg-white border-l border-sage/60 flex flex-col overflow-y-auto shrink-0 z-20">
+            {/* Panel Tabs Header */}
+            <div className="p-4 border-b border-sage/40 flex items-center justify-between">
+              <span className="font-bold text-xs uppercase tracking-wider text-forest">
+                {activeTab === "editor" && "AI Assistant & Editing"}
+                {activeTab === "elements" && `Document Layers (${elements.length})`}
+                {activeTab === "guard" && "DocumentGuard Security"}
+                {activeTab === "deinker" && "Selective De-Inking Matrix"}
+              </span>
+              <span className="sim-badge">ACTIVE</span>
+            </div>
+
+            {/* TAB: Canvas & AI */}
+            {activeTab === "editor" && (
+              <div className="p-4 space-y-5">
+                {/* Selected Element Quick Inspector */}
+                {selectedElement ? (
+                  <div className="bg-sage/20 rounded-2xl p-4 border border-sage/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[11px] font-bold text-primary uppercase">
+                        Selected Element
+                      </span>
+                      <span className="text-[10px] text-charcoal/50 font-mono">
+                        ID: {selectedElement.id.slice(0, 10)}
+                      </span>
+                    </div>
+
+                    <p className="text-xs font-semibold text-charcoal mb-2 line-clamp-2">
+                      &ldquo;{selectedElement.content}&rdquo;
+                    </p>
+
+                    <div className="flex items-center gap-2 pt-2 border-t border-sage/30">
+                      <button
+                        onClick={() => {
+                          const updated = elements.filter((e) => e.id !== selectedElement.id);
+                          setElements(updated);
+                          setSelectedElement(null);
+                        }}
+                        className="flex-1 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500 hover:text-white text-red-600 text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete Element</span>
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const updated = elements.map((e) =>
+                            e.id === selectedElement.id ? { ...e, isDeleted: !e.isDeleted } : e
+                          );
+                          setElements(updated);
+                        }}
+                        className="flex-1 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500 hover:text-white text-amber-700 text-xs font-medium transition-colors flex items-center justify-center gap-1.5"
+                      >
+                        <Eraser className="w-3.5 h-3.5" />
+                        <span>{selectedElement.isDeleted ? "Unmark" : "Mark De-ink"}</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-6 px-4 border-2 border-dashed border-sage/40 rounded-2xl text-charcoal/40 text-xs">
+                    <MousePointer2 className="w-5 h-5 mx-auto mb-2 opacity-50 text-primary" />
+                    Click any text element on the document to select, edit or delete it.
+                  </div>
+                )}
+
+                {/* AI Document Restoration Suggestions */}
+                <div>
+                  <div className="flex items-center gap-2 mb-3">
+                    <Sparkles className="w-4 h-4 text-primary" />
+                    <h3 className="text-xs font-bold text-forest uppercase tracking-wider">
+                      AI Corrections
+                    </h3>
+                    <span className="ml-auto sim-badge">DEMO OCR</span>
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="bg-white rounded-xl border border-sage/60 p-3 shadow-xs">
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="font-semibold text-primary">Spelling Fix</span>
+                        <span className="text-[10px] text-charcoal/40">Confidence: 98%</span>
+                      </div>
+                      <p className="text-[11px] line-through text-charcoal/40 mb-1">
+                        &ldquo;schedueled for Tuseday&rdquo;
+                      </p>
+                      <p className="text-[11px] text-charcoal font-medium mb-2">
+                        &rarr; &ldquo;scheduled for Tuesday&rdquo;
+                      </p>
+                      <button
+                        onClick={() => applyAISuggestion(0)}
+                        disabled={appliedAI.has(0)}
+                        className={`w-full py-1 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1 ${
+                          appliedAI.has(0)
+                            ? "bg-green-50 text-green-700 border border-green-200"
+                            : "bg-primary text-white hover:bg-forest"
+                        }`}
+                      >
+                        {appliedAI.has(0) ? (
+                          <>
+                            <Check className="w-3 h-3" />
+                            <span>Applied to Canvas</span>
+                          </>
+                        ) : (
+                          "Apply Correction"
+                        )}
+                      </button>
+                    </div>
+
+                    <div className="bg-white rounded-xl border border-sage/60 p-3 shadow-xs">
+                      <div className="flex items-center justify-between text-[11px] mb-1">
+                        <span className="font-semibold text-forest">Readability Suggestion</span>
+                        <span className="text-[10px] text-charcoal/40">Suggested edit</span>
+                      </div>
+                      <p className="text-[11px] text-charcoal/70 mb-2">
+                        Replace obsolete draft notes with updated quarterly sustainability goals.
+                      </p>
+                      <button
+                        onClick={() => {
+                          const updated = elements.map((el) =>
+                            el.id === "el-metric-box"
+                              ? {
+                                  ...el,
+                                  content: "TARGET REACHED: 100% RECYCLED PAPER REUSE ADOPTED",
+                                  color: "#123B2A",
+                                }
+                              : el
+                          );
+                          setElements(updated);
+                        }}
+                        className="w-full py-1 rounded-lg bg-sage/30 hover:bg-sage/50 text-forest text-xs font-semibold transition-all"
+                      >
+                        Update Target Banner
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Instructions */}
+                <div className="p-3 bg-amber-50 rounded-xl border border-amber-200 text-[11px] text-amber-800 space-y-1">
+                  <div className="font-semibold flex items-center gap-1">
+                    <Info className="w-3.5 h-3.5" />
+                    <span>How Selective Editing Works</span>
+                  </div>
+                  <p>
+                    1. Click an element on the paper sheet to highlight it.
                   </p>
-                  <p className="text-xs text-charcoal/40 capitalize">
-                    {uploaded.type} •{" "}
-                    {(uploaded.file.size / 1024).toFixed(0)} KB
+                  <p>
+                    2. Press <kbd className="px-1 py-0.2 rounded bg-amber-200 font-mono text-[10px]">Delete</kbd> or click the trash can to remove it.
+                  </p>
+                  <p>
+                    3. Double-click to edit text directly inline.
                   </p>
                 </div>
               </div>
+            )}
 
-              {/* Workflow advance */}
-              {workflowState !== "completed" && workflowState !== "processing" && (
-                <button
-                  onClick={advance}
-                  className="w-full py-2 rounded-lg bg-primary text-white text-xs font-semibold hover:bg-forest transition-colors"
-                >
-                  {workflowState === "awaiting-confirm" ? "Confirm & Simulate" : "Advance Workflow →"}
-                </button>
-              )}
-
-              {workflowState === "processing" && (
-                <div className="flex items-center gap-2 py-2 text-xs text-primary">
-                  <Clock className="w-3.5 h-3.5 animate-spin" aria-hidden="true" />
-                  Simulating…
-                </div>
-              )}
-
-              {workflowState === "completed" && (
-                <div className="flex items-center gap-2 py-2 text-xs text-green-700 bg-green-50 rounded-lg px-3 border border-green-200">
-                  <CheckCircle2 className="w-3.5 h-3.5" aria-hidden="true" />
-                  Simulation complete
-                </div>
-              )}
-
-              <button
-                onClick={handleRemove}
-                className="w-full py-2 rounded-lg border border-sage text-charcoal text-xs hover:bg-red-50 hover:border-red-200 hover:text-red-600 transition-colors flex items-center gap-1.5 justify-center"
-              >
-                <X className="w-3 h-3" aria-hidden="true" /> Remove document
-              </button>
-            </div>
-          )}
-
-          <div className="mt-auto">
-            <div className="flex items-start gap-2 p-3 bg-sage/20 rounded-xl text-xs text-charcoal/50">
-              <Info className="w-3.5 h-3.5 flex-shrink-0 mt-0.5" aria-hidden="true" />
-              Documents are processed locally in your browser. Nothing is uploaded to a server.
-            </div>
-          </div>
-        </aside>
-
-        {/* Centre — viewer */}
-        <section
-          className="flex-1 flex flex-col p-4 min-h-[400px]"
-          aria-label="Document viewer"
-        >
-          {!uploaded ? (
-            <UploadZone onFile={handleFile} />
-          ) : (
-            <DocumentViewer uploaded={uploaded} onRemove={handleRemove} />
-          )}
-        </section>
-
-        {/* Right panel — tabs */}
-        <aside
-          className="w-full lg:w-72 bg-white border-t lg:border-t-0 lg:border-l border-sage flex flex-col"
-          aria-label="Tools panel"
-        >
-          {/* Tab bar */}
-          <div className="flex border-b border-sage" role="tablist" aria-label="Tool panels">
-            {tabs.map(({ id, label, icon: Icon }) => (
-              <button
-                key={id}
-                role="tab"
-                aria-selected={activeTab === id}
-                aria-controls={`panel-${id}`}
-                onClick={() => setActiveTab(id)}
-                className={`flex-1 flex flex-col items-center gap-1 py-3 text-xs font-medium transition-colors border-b-2 ${
-                  activeTab === id
-                    ? "border-primary text-primary"
-                    : "border-transparent text-charcoal/50 hover:text-charcoal"
-                }`}
-              >
-                <Icon className="w-4 h-4" aria-hidden="true" />
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Panel content */}
-          <div className="flex-1 p-4 overflow-y-auto">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTab}
-                id={`panel-${activeTab}`}
-                role="tabpanel"
-                aria-label={`${activeTab} panel`}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -4 }}
-                transition={{ duration: 0.15 }}
-              >
-                {activeTab === "editor" && (
-                  <AIAssistantPanel hasDocument={!!uploaded} />
-                )}
-
-                {activeTab === "guard" && (
-                  <div>
-                    <h3 className="text-sm font-semibold text-charcoal mb-4 flex items-center gap-2">
-                      <Shield className="w-4 h-4 text-primary" aria-hidden="true" />
-                      DocumentGuard
-                    </h3>
-                    {!uploaded ? (
-                      <p className="text-sm text-charcoal/40">
-                        Upload a document to run security checks.
-                      </p>
-                    ) : (
-                      <DocumentGuardPanel filename={uploaded.file.name} />
-                    )}
-                  </div>
-                )}
-
-                {activeTab === "deinker" && (
-                  <div>
-                    <div className="flex items-center gap-2 mb-4">
-                      <Layers className="w-4 h-4 text-primary" aria-hidden="true" />
-                      <h3 className="text-sm font-semibold text-charcoal">
-                        De-Inking
-                      </h3>
-                      <span className="ml-auto sim-badge">SIMULATION</span>
+            {/* TAB: Layers Tree */}
+            {activeTab === "elements" && (
+              <div className="p-4 space-y-2">
+                <p className="text-xs text-charcoal/60 mb-2">
+                  All interactive elements detected in this document:
+                </p>
+                {elements.map((el, i) => (
+                  <div
+                    key={el.id}
+                    onClick={() => setSelectedElement(el)}
+                    className={`flex items-center justify-between p-2.5 rounded-xl border text-xs cursor-pointer transition-all ${
+                      selectedElement?.id === el.id
+                        ? "bg-primary/10 border-primary"
+                        : "bg-white border-sage hover:border-primary/40"
+                    } ${el.isDeleted ? "opacity-40 line-through" : ""}`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="font-mono text-[10px] text-charcoal/40">#{i + 1}</span>
+                      <span className="truncate max-w-[170px] font-medium text-charcoal">
+                        {el.content}
+                      </span>
                     </div>
 
-                    {!uploaded ? (
-                      <p className="text-sm text-charcoal/40">
-                        Upload a document to see de-inking options.
-                      </p>
-                    ) : (
-                      <div className="space-y-4">
-                        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-800">
-                          <AlertTriangle className="inline w-3.5 h-3.5 mr-1.5" aria-hidden="true" />
-                          This is a simulation. Physical ink removal requires
-                          compatible RELEAF hardware, which is currently under
-                          development.
-                        </div>
-
-                        <div>
-                          <label className="text-xs font-semibold text-charcoal/60 block mb-2">
-                            Paper type
-                          </label>
-                          <select className="w-full border border-sage rounded-lg px-3 py-2 text-sm bg-white text-charcoal focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary">
-                            <option>Standard office (80 gsm)</option>
-                            <option>Recycled paper</option>
-                            <option>Bond paper</option>
-                            <option>Previously printed (for reuse)</option>
-                          </select>
-                        </div>
-
-                        <div>
-                          <label className="flex items-center gap-2 cursor-pointer">
-                            <input
-                              type="checkbox"
-                              checked={deinkRegion}
-                              onChange={(e) => setDeinkRegion(e.target.checked)}
-                              className="rounded border-sage text-primary focus:ring-primary"
-                            />
-                            <span className="text-sm text-charcoal">
-                              Select region for de-inking
-                            </span>
-                          </label>
-                        </div>
-
-                        {deinkRegion && (
-                          <div className="bg-lime/20 border border-lime/40 rounded-xl p-3 text-xs text-forest">
-                            <CheckCircle2 className="inline w-3.5 h-3.5 mr-1.5 text-primary" aria-hidden="true" />
-                            Region selected (simulation). Workflow will target
-                            lines 3–5 of page 1 for ink removal.
-                          </div>
-                        )}
-
-                        <button
-                          onClick={() => {
-                            setWorkflowState("paper-check");
-                            setConfirmed(true);
-                          }}
-                          disabled={!deinkRegion || workflowState === "completed"}
-                          className="w-full py-2.5 rounded-xl bg-primary text-white text-sm font-semibold hover:bg-forest transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                        >
-                          Start Simulated Restoration
-                        </button>
-
-                        {confirmed && workflowState !== "idle" && (
-                          <div className="text-xs text-charcoal/50 text-center">
-                            Workflow state: <strong>{WORKFLOW_LABELS[workflowState]}</strong>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          const updated = elements.filter((item) => item.id !== el.id);
+                          setElements(updated);
+                          if (selectedElement?.id === el.id) setSelectedElement(null);
+                        }}
+                        className="p-1 text-charcoal/40 hover:text-red-500 rounded"
+                        title="Delete element"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-        </aside>
-      </main>
+                ))}
+              </div>
+            )}
+
+            {/* TAB: DocumentGuard Security */}
+            {activeTab === "guard" && securityInfo && (
+              <div className="p-4 space-y-4">
+                <div
+                  className={`rounded-2xl p-4 border ${
+                    securityInfo.status === "green"
+                      ? "status-green"
+                      : securityInfo.status === "amber"
+                      ? "status-amber"
+                      : "status-red"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 mb-2 font-bold text-xs uppercase tracking-wider">
+                    <Shield className="w-4 h-4" />
+                    <span>Decision: {securityInfo.label}</span>
+                  </div>
+                  <p className="text-xs leading-relaxed mb-3">{securityInfo.reason}</p>
+                  <p className="text-xs font-semibold">{securityInfo.action}</p>
+                </div>
+
+                <div className="bg-sage/20 rounded-2xl p-4 border border-sage/40 space-y-2 text-xs">
+                  <h4 className="font-bold text-forest">Integrity Checklist</h4>
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Non-academic certificate validated</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Financial value field not altered</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-green-700">
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Element audit record attached</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* TAB: De-Inking Physical Simulator */}
+            {activeTab === "deinker" && (
+              <div className="p-4 space-y-4">
+                <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-xs text-amber-800 space-y-2">
+                  <div className="font-bold flex items-center gap-1.5 text-amber-900">
+                    <AlertTriangle className="w-4 h-4" />
+                    <span>Physical Simulation Mode</span>
+                  </div>
+                  <p>
+                    Physical ink removal chamber is simulated for this hackathon build. RELEAF calculates precise micron coordinate masks for de-inking lasers or bio-solvents.
+                  </p>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-sage/60 p-4 space-y-3">
+                  <h4 className="text-xs font-bold text-forest">Simulation Metrics</h4>
+                  <div className="flex justify-between text-xs py-1 border-b border-sage/20">
+                    <span className="text-charcoal/60">Paper Substrate:</span>
+                    <span className="font-semibold">Standard 80 gsm</span>
+                  </div>
+                  <div className="flex justify-between text-xs py-1 border-b border-sage/20">
+                    <span className="text-charcoal/60">De-inking Targets:</span>
+                    <span className="font-semibold text-amber-700">{deletedCount} elements</span>
+                  </div>
+                  <div className="flex justify-between text-xs py-1 border-b border-sage/20">
+                    <span className="text-charcoal/60">Cycle Count:</span>
+                    <span className="font-semibold">Cycle 1 of 2</span>
+                  </div>
+                  <div className="flex justify-between text-xs py-1">
+                    <span className="text-charcoal/60">Fibre Degradation:</span>
+                    <span className="font-semibold text-green-700">&lt; 2.5%</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={runDeinkingSimulation}
+                  disabled={isSimulating}
+                  className="w-full py-2.5 rounded-xl bg-forest hover:bg-primary text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
+                >
+                  <RefreshCw className={`w-3.5 h-3.5 ${isSimulating ? "animate-spin" : ""}`} />
+                  <span>{isSimulating ? "Processing Chamber…" : "Trigger Simulated Ink Removal"}</span>
+                </button>
+              </div>
+            )}
+          </aside>
+        )}
+      </div>
     </div>
   );
 }
