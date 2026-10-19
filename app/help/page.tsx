@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import Navigation from "@/components/layout/Navigation";
 import Footer from "@/components/layout/Footer";
 import Link from "next/link";
-import { HelpCircle, ArrowRight, AlertTriangle, FileText, Shield, Layers, Printer } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Help & FAQ",
+  title: "Help & FAQ — RELEAF",
   description: "Frequently asked questions and guides for the RELEAF smart paper restoration platform.",
 };
 
@@ -40,15 +40,15 @@ export default function HelpPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F4F0E6] min-h-screen">
         <div className="container-narrow max-w-4xl">
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="pill-badge mb-3">Knowledge Base</span>
-            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className="lime-tag">KNOWLEDGE BASE</span>
+            <h1 className="text-4xl sm:text-6xl font-black text-[#123B2A] tracking-tight">
               Help & Frequently Asked Questions
             </h1>
-            <p className="text-charcoal/70 text-base leading-relaxed">
+            <p className="text-[#626B63] text-sm sm:text-base leading-relaxed">
               Find answers about Canva editing, selective de-inking, DocumentGuard, and privacy.
             </p>
           </div>
@@ -58,31 +58,25 @@ export default function HelpPage() {
             {faqs.map(({ q, a }) => (
               <div
                 key={q}
-                className="bg-white rounded-3xl p-6 sm:p-7 border border-black/5 shadow-xs space-y-2 card-hover"
+                className="bg-[#FFFDF7] rounded-xs p-6 border-2 border-[#123B2A] shadow-sm space-y-2"
               >
-                <h3 className="font-bold text-base text-forest flex items-start gap-2.5">
-                  <span className="text-primary font-mono text-sm mt-0.5">Q.</span>
-                  <span>{q}</span>
-                </h3>
-                <p className="text-xs sm:text-sm text-charcoal/70 pl-6 leading-relaxed">
-                  {a}
-                </p>
+                <h3 className="font-black text-base text-[#123B2A]">{q}</h3>
+                <p className="text-xs sm:text-sm text-[#626B63] leading-relaxed">{a}</p>
               </div>
             ))}
           </div>
 
-          {/* Need help banner */}
-          <div className="bg-forest text-white rounded-3xl p-8 sm:p-10 shadow-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div className="space-y-1">
-              <h3 className="font-bold text-xl">Ready to test the studio yourself?</h3>
-              <p className="text-xs text-sage/80">Experience real-time element selection, deletion, and vector export.</p>
+          {/* Bottom Card */}
+          <div className="p-8 rounded-xs bg-[#123B2A] text-[#FFFDF7] border-2 border-[#123B2A] flex flex-col sm:flex-row items-center justify-between gap-6 shadow-xl">
+            <div>
+              <h3 className="font-black text-xl text-[#FFFDF7]">Have questions about your document?</h3>
+              <p className="text-xs text-[#DDE6D8]/80 mt-1">Try our AI Assistant in client demo mode.</p>
             </div>
-
             <Link
-              href="/workspace"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-lime text-forest font-bold text-xs hover:bg-white transition-all shadow-md shrink-0"
+              href="/assistant"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xs bg-[#D6FF52] text-[#123B2A] font-extrabold text-xs uppercase tracking-wider hover:bg-[#E5FF85] transition-all shrink-0"
             >
-              <span>Launch Studio</span>
+              <span>Ask AI Assistant</span>
               <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

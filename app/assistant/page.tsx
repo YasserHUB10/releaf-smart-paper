@@ -8,11 +8,8 @@ import {
   Sparkles,
   Send,
   RotateCcw,
-  FileText,
-  AlertTriangle,
   Bot,
   User,
-  Zap,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
@@ -80,16 +77,16 @@ export default function AssistantPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen flex flex-col">
+      <main className="pt-28 pb-20 bg-[#F4F0E6] min-h-screen flex flex-col">
         <div className="container-narrow flex-1 flex flex-col max-w-4xl w-full">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
             <div>
-              <span className="pill-badge mb-2">AI Document Restoration</span>
-              <h1 className="text-3xl sm:text-4xl font-black text-forest tracking-tight">
+              <span className="lime-tag mb-2">AI RESTORATION</span>
+              <h1 className="text-3xl sm:text-5xl font-black text-[#123B2A] tracking-tight">
                 AI Document Assistant
               </h1>
-              <p className="text-xs sm:text-sm text-charcoal/60 mt-1">
+              <p className="text-xs sm:text-sm text-[#626B63] mt-1 font-normal">
                 Contextual AI guidance for proofreading, document restoration, and paper compatibility.
               </p>
             </div>
@@ -98,7 +95,7 @@ export default function AssistantPage() {
               <span className="sim-badge">CLIENT DEMO</span>
               <button
                 onClick={reset}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white border border-black/10 text-xs font-semibold text-charcoal hover:bg-black/5 transition-colors shadow-2xs"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xs bg-[#FFFDF7] border border-[#123B2A]/20 text-xs font-mono font-bold text-[#123B2A] hover:bg-[#DDE6D8] transition-colors shadow-2xs"
                 title="Reset conversation"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -109,7 +106,7 @@ export default function AssistantPage() {
 
           {/* Quick Prompt Chips */}
           <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1 text-xs">
-            <span className="text-[11px] font-bold text-forest uppercase shrink-0">Try Asking:</span>
+            <span className="text-[11px] font-mono font-bold text-[#123B2A] uppercase shrink-0">Try Asking:</span>
             {[
               "Scan for spelling typos",
               "Summarize document",
@@ -119,7 +116,7 @@ export default function AssistantPage() {
               <button
                 key={prompt}
                 onClick={() => send(prompt)}
-                className="px-3 py-1.5 rounded-full bg-white hover:bg-forest hover:text-white border border-black/10 text-xs font-medium text-charcoal/80 shrink-0 transition-all shadow-2xs"
+                className="px-3 py-1.5 rounded-xs bg-[#FFFDF7] hover:bg-[#123B2A] hover:text-[#D6FF52] border border-[#123B2A]/20 text-xs font-bold text-[#123B2A] shrink-0 transition-all shadow-2xs"
               >
                 {prompt}
               </button>
@@ -127,7 +124,7 @@ export default function AssistantPage() {
           </div>
 
           {/* Chat Container */}
-          <div className="flex-1 bg-white rounded-3xl border border-black/5 shadow-xs flex flex-col overflow-hidden min-h-[480px]">
+          <div className="flex-1 bg-[#FFFDF7] rounded-xs border-2 border-[#123B2A] shadow-md flex flex-col overflow-hidden min-h-[500px]">
             {/* Message Feed */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               <AnimatePresence initial={false}>
@@ -139,16 +136,16 @@ export default function AssistantPage() {
                     className={`flex gap-3 ${m.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     {m.role === "assistant" && (
-                      <div className="w-8 h-8 rounded-xl bg-forest text-lime flex items-center justify-center shrink-0 shadow-2xs">
+                      <div className="w-8 h-8 rounded-xs bg-[#123B2A] text-[#D6FF52] flex items-center justify-center shrink-0 shadow-2xs">
                         <Bot className="w-4 h-4" />
                       </div>
                     )}
 
                     <div
-                      className={`max-w-[85%] sm:max-w-[75%] rounded-2xl p-4 text-xs sm:text-sm leading-relaxed ${
+                      className={`max-w-[85%] sm:max-w-[75%] rounded-xs p-4 text-xs sm:text-sm leading-relaxed ${
                         m.role === "user"
-                          ? "bg-forest text-white rounded-tr-none shadow-xs"
-                          : "bg-[#F9F8F3] text-charcoal rounded-tl-none border border-black/5"
+                          ? "bg-[#123B2A] text-[#FFFDF7] shadow-sm"
+                          : "bg-[#F4F0E6] text-[#17201B] border border-[#123B2A]/15"
                       }`}
                     >
                       {m.isDemo && m.role === "assistant" && (
@@ -158,7 +155,7 @@ export default function AssistantPage() {
                     </div>
 
                     {m.role === "user" && (
-                      <div className="w-8 h-8 rounded-xl bg-primary text-white flex items-center justify-center shrink-0 shadow-2xs">
+                      <div className="w-8 h-8 rounded-xs bg-[#287A50] text-[#FFFDF7] flex items-center justify-center shrink-0 shadow-2xs">
                         <User className="w-4 h-4" />
                       </div>
                     )}
@@ -167,21 +164,21 @@ export default function AssistantPage() {
               </AnimatePresence>
 
               {loading && (
-                <div className="flex gap-3 items-center text-charcoal/50 text-xs">
-                  <div className="w-8 h-8 rounded-xl bg-forest text-lime flex items-center justify-center">
+                <div className="flex gap-3 items-center text-[#626B63] text-xs">
+                  <div className="w-8 h-8 rounded-xs bg-[#123B2A] text-[#D6FF52] flex items-center justify-center">
                     <Bot className="w-4 h-4" />
                   </div>
                   <div className="flex gap-1">
-                    <span className="w-2 h-2 rounded-full bg-primary animate-bounce" />
-                    <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.15s]" />
-                    <span className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:0.3s]" />
+                    <span className="w-2 h-2 rounded-full bg-[#123B2A] animate-bounce" />
+                    <span className="w-2 h-2 rounded-full bg-[#123B2A] animate-bounce [animation-delay:0.15s]" />
+                    <span className="w-2 h-2 rounded-full bg-[#123B2A] animate-bounce [animation-delay:0.3s]" />
                   </div>
                 </div>
               )}
             </div>
 
             {/* Input Composer */}
-            <div className="p-4 bg-[#F9F8F3] border-t border-black/5">
+            <div className="p-4 bg-[#F4F0E6] border-t-2 border-[#123B2A]">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -195,23 +192,24 @@ export default function AssistantPage() {
                   onChange={(e) => setInput(e.target.value)}
                   placeholder="Ask about proofreading, de-inking, or DocumentGuard..."
                   disabled={loading}
-                  className="flex-1 bg-white border border-black/10 rounded-xl px-4 py-3 text-xs sm:text-sm text-charcoal placeholder-charcoal/40 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary shadow-2xs"
+                  className="flex-1 bg-[#FFFDF7] border-2 border-[#123B2A] rounded-xs px-4 py-3 text-xs sm:text-sm text-[#17201B] placeholder-[#626B63]/60 focus:outline-none focus:ring-2 focus:ring-[#D6FF52] shadow-2xs font-sans"
                 />
 
                 <button
                   type="submit"
                   disabled={!input.trim() || loading}
-                  className="w-11 h-11 rounded-xl bg-forest hover:bg-forest-light text-lime flex items-center justify-center transition-all disabled:opacity-40 disabled:hover:bg-forest shadow-xs shrink-0"
+                  className="w-12 h-12 rounded-xs bg-[#123B2A] hover:bg-[#1B4E38] text-[#D6FF52] flex items-center justify-center transition-all disabled:opacity-40 disabled:hover:bg-[#123B2A] shadow-xs shrink-0"
                   aria-label="Send message"
                 >
                   <Send className="w-4 h-4" />
                 </button>
               </form>
 
-              <div className="mt-2.5 flex items-center justify-between text-[11px] text-charcoal/40 px-1">
+              <div className="mt-2.5 flex items-center justify-between text-[11px] font-mono text-[#626B63] px-1">
                 <span>Client-Side Sandbox • No keys or credentials exposed</span>
-                <Link href="/workspace" className="text-primary hover:underline font-semibold">
-                  Open in Document Studio &rarr;
+                <Link href="/workspace" className="text-[#123B2A] font-bold hover:underline inline-flex items-center gap-1">
+                  <span>Open in Document Studio</span>
+                  <ArrowRight className="w-3 h-3 text-[#D6FF52] bg-[#123B2A] p-0.5 rounded-xs" />
                 </Link>
               </div>
             </div>

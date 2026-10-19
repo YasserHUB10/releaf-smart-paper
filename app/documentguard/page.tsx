@@ -8,15 +8,10 @@ import {
   CheckCircle2,
   AlertTriangle,
   XCircle,
-  FileSearch,
   Lock,
-  Droplets,
-  Info,
-  ShieldCheck,
   ArrowRight,
 } from "lucide-react";
 import Link from "next/link";
-import { motion } from "framer-motion";
 
 type SecurityStatus = "green" | "amber" | "red";
 
@@ -60,63 +55,62 @@ const SCENARIOS: SecurityScenario[] = [
     status: "red",
     statusLabel: "Blocked",
     reason:
-      "Educational certificates, transcripts, and diplomas are protected credentials. Modifying personal identification fields on official records is blocked.",
-    alternative:
-      "Submit an official name correction petition directly to the accredited issuing institution.",
-    watermark: "BLOCKED — CREDENTIAL ALTERATION",
+      "Educational certificates, degree awards, and government credentials are high-risk categories. Any selective de-inking on identified certificate layouts is permanently prohibited.",
+    alternative: "Official duplicate certificates must be ordered directly from the issuing university registry.",
+    watermark: "LOCKED — CERTIFICATE INTEGRITY PROTECTED",
   },
   {
-    id: "contract-date",
-    title: "Modifying commencement date in draft agreement",
-    description:
-      'Changing "effective from 1 Jan 2026" to "effective from 1 Mar 2026" in a document tagged DRAFT.',
+    id: "signature-block",
+    title: "Removing a signature block from a contract",
+    description: "Erasing the handwritten signature region on a non-disclosure agreement.",
     status: "amber",
     statusLabel: "Review Required",
     reason:
-      "Date alterations in contractual agreements require explicit multi-party verification. The document carries a draft tag, but changes to execution dates require manual supervisor approval.",
-    watermark: "REVISED DRAFT — PENDING AUDIT",
+      "Altering legal signature regions requires documented authorization. RELEAF requires a supervisor confirmation step before approving print tray release.",
+    alternative: "Execute an addendum or generate a clean contract revision for re-signing.",
   },
   {
-    id: "restore-damaged",
-    title: "Reconstructing smudged text on personal notes",
-    description: "Filling in partially faded characters on personal handwritten notes or receipts.",
+    id: "meeting-agenda-date",
+    title: "Updating date on weekly staff meeting agenda",
+    description: 'Changing "Tuesday 10am" to "Thursday 2pm" on a printed internal agenda sheet.',
     status: "green",
     statusLabel: "Permitted",
     reason:
-      "Low-risk text reconstruction in a personal non-contractual context. AI fills are clearly labelled with confidence scores.",
+      "Non-sensitive scheduling updates on standard office copy paper. Ideal circular reuse scenario.",
   },
 ];
-
-const statusStyles = {
-  green: "status-green",
-  amber: "status-amber",
-  red: "status-red",
-};
-
-const statusIcons = {
-  green: CheckCircle2,
-  amber: AlertTriangle,
-  red: XCircle,
-};
 
 export default function DocumentGuardPage() {
   const [selectedId, setSelectedId] = useState<string>("typo");
   const selected = SCENARIOS.find((s) => s.id === selectedId) || SCENARIOS[0];
+
+  const statusStyles = {
+    green: "border-[#287A50] bg-[#EAF4EE] text-[#123B2A]",
+    amber: "border-[#FDE68A] bg-[#FFFBEB] text-[#92400E]",
+    red: "border-[#FECACA] bg-[#FEF2F2] text-[#991B1B]",
+  };
+
+  const statusIcons = {
+    green: CheckCircle2,
+    amber: AlertTriangle,
+    red: XCircle,
+  };
+
   const IconComponent = statusIcons[selected.status];
 
   return (
     <>
       <Navigation />
-      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F4F0E6] min-h-screen">
         <div className="container-narrow">
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <span className="pill-badge mb-3">Integrity & Governance</span>
-            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
+            <span className="cobalt-tag">INTEGRITY ARCHITECTURE</span>
+            <h1 className="text-4xl sm:text-6xl font-black text-[#123B2A] tracking-tight">
               DocumentGuard Security Engine
             </h1>
-            <p className="text-charcoal/70 text-base leading-relaxed">
-              Distinguishing legitimate typographical restoration from fraudulent credential and financial alteration.
+            <p className="text-[#626B63] text-sm sm:text-base leading-relaxed">
+              Paper reuse must not enable unauthorized document tampering. DocumentGuard applies a strict three-tier verification policy to protect certificates, legal agreements, and financial deeds.
             </p>
           </div>
 
@@ -144,10 +138,10 @@ export default function DocumentGuardPage() {
             ].map(({ status, title, desc, icon: Icon }) => (
               <div
                 key={title}
-                className={`p-6 rounded-3xl border shadow-xs ${statusStyles[status]}`}
+                className={`p-6 rounded-xs border-2 shadow-sm space-y-2 ${statusStyles[status]}`}
               >
-                <Icon className="w-6 h-6 mb-3" />
-                <h3 className="font-bold text-base mb-1">{title}</h3>
+                <Icon className="w-6 h-6 mb-2" />
+                <h3 className="font-black text-base tracking-tight">{title}</h3>
                 <p className="text-xs leading-relaxed opacity-90">{desc}</p>
               </div>
             ))}
@@ -157,7 +151,7 @@ export default function DocumentGuardPage() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mb-16">
             {/* Scenario Buttons (Left) */}
             <div className="lg:col-span-5 space-y-3">
-              <h2 className="text-xs font-bold text-forest uppercase tracking-wider mb-2">
+              <h2 className="text-xs font-mono font-bold text-[#123B2A] uppercase tracking-wider mb-2">
                 Select Test Scenario
               </h2>
               {SCENARIOS.map((s) => {
@@ -167,24 +161,24 @@ export default function DocumentGuardPage() {
                   <button
                     key={s.id}
                     onClick={() => setSelectedId(s.id)}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all flex items-start gap-3.5 ${
+                    className={`w-full text-left p-4 rounded-xs border-2 transition-all flex items-start gap-3.5 ${
                       isCurrent
-                        ? "bg-white border-forest shadow-md ring-1 ring-forest/20"
-                        : "bg-white/60 hover:bg-white border-black/5 text-charcoal/70"
+                        ? "bg-[#FFFDF7] border-[#123B2A] shadow-md ring-2 ring-[#D6FF52]"
+                        : "bg-[#FFFDF7]/70 hover:bg-[#FFFDF7] border-[#123B2A]/15 text-[#626B63]"
                     }`}
                   >
                     <ItemIcon
                       className={`w-5 h-5 shrink-0 mt-0.5 ${
                         s.status === "green"
-                          ? "text-green-600"
+                          ? "text-[#287A50]"
                           : s.status === "amber"
-                          ? "text-amber-600"
-                          : "text-red-600"
+                          ? "text-[#92400E]"
+                          : "text-[#991B1B]"
                       }`}
                     />
                     <div>
-                      <p className="font-bold text-xs sm:text-sm text-forest">{s.title}</p>
-                      <p className="text-[11px] text-charcoal/50 line-clamp-1">{s.description}</p>
+                      <p className="font-bold text-xs sm:text-sm text-[#123B2A]">{s.title}</p>
+                      <p className="text-[11px] text-[#626B63] line-clamp-1">{s.description}</p>
                     </div>
                   </button>
                 );
@@ -192,28 +186,28 @@ export default function DocumentGuardPage() {
             </div>
 
             {/* Decision Details Panel (Right) */}
-            <div className="lg:col-span-7 bg-white rounded-3xl p-8 border border-black/5 shadow-xs space-y-6">
-              <div className="flex items-center justify-between pb-4 border-b border-black/5">
+            <div className="lg:col-span-7 bg-[#FFFDF7] rounded-xs p-8 border-2 border-[#123B2A] shadow-md space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[#123B2A]/15">
                 <div>
-                  <span className="text-[10px] font-mono uppercase text-charcoal/40">
+                  <span className="text-[10px] font-mono uppercase text-[#626B63]">
                     Decision Analysis
                   </span>
-                  <h3 className="text-lg font-black text-forest">{selected.title}</h3>
+                  <h3 className="text-lg font-black text-[#123B2A]">{selected.title}</h3>
                 </div>
 
-                <div className={`px-3 py-1 rounded-full text-xs font-bold ${statusStyles[selected.status]}`}>
+                <div className={`px-3 py-1 rounded-xs text-xs font-mono font-bold uppercase ${statusStyles[selected.status]}`}>
                   {selected.statusLabel}
                 </div>
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-forest uppercase tracking-wider mb-1">
+                <h4 className="text-xs font-mono font-bold text-[#123B2A] uppercase tracking-wider mb-1">
                   Proposed Action
                 </h4>
-                <p className="text-xs sm:text-sm text-charcoal/70">{selected.description}</p>
+                <p className="text-xs sm:text-sm text-[#626B63]">{selected.description}</p>
               </div>
 
-              <div className={`p-4 rounded-2xl border text-xs leading-relaxed space-y-2 ${statusStyles[selected.status]}`}>
+              <div className={`p-4 rounded-xs border text-xs leading-relaxed space-y-2 ${statusStyles[selected.status]}`}>
                 <div className="font-bold flex items-center gap-1.5">
                   <IconComponent className="w-4 h-4" />
                   <span>DocumentGuard Determination</span>
@@ -222,18 +216,18 @@ export default function DocumentGuardPage() {
               </div>
 
               {selected.alternative && (
-                <div className="p-4 rounded-2xl bg-blue-50 border border-blue-200 text-blue-900 text-xs">
-                  <span className="font-bold block mb-1">Legitimate Recommended Alternative:</span>
+                <div className="p-4 rounded-xs bg-[#4F5BFF]/10 border border-[#4F5BFF]/30 text-[#123B2A] text-xs">
+                  <span className="font-bold block mb-1 text-[#4F5BFF]">Legitimate Recommended Alternative:</span>
                   <p>{selected.alternative}</p>
                 </div>
               )}
 
               {selected.watermark && (
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-200 text-xs text-center space-y-2">
-                  <span className="text-[10px] text-charcoal/50 uppercase font-mono block">
+                <div className="p-4 bg-[#F4F0E6] rounded-xs border border-[#123B2A]/15 text-xs text-center space-y-2">
+                  <span className="text-[10px] text-[#626B63] uppercase font-mono block">
                     Security Watermark Applied to Physical Tray:
                   </span>
-                  <span className="inline-block px-4 py-1.5 border-2 border-dashed border-red-400 text-red-600 font-black tracking-widest text-xs uppercase rotate-[-3deg] bg-white">
+                  <span className="inline-block px-4 py-1.5 border-2 border-dashed border-[#991B1B] text-[#991B1B] font-black tracking-widest text-xs uppercase bg-[#FFFDF7]">
                     {selected.watermark}
                   </span>
                 </div>
@@ -242,20 +236,20 @@ export default function DocumentGuardPage() {
           </div>
 
           {/* Anti-fraud commitment banner */}
-          <div className="p-8 rounded-3xl bg-forest text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="p-8 rounded-xs bg-[#123B2A] text-[#FFFDF7] border-2 border-[#123B2A] flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl">
             <div className="space-y-2 max-w-xl">
               <div className="flex items-center gap-2">
-                <Lock className="w-5 h-5 text-lime" />
-                <h3 className="font-bold text-lg">Anti-Fraud & Ethics Commitment</h3>
+                <Lock className="w-5 h-5 text-[#D6FF52]" />
+                <h3 className="font-black text-lg">Anti-Fraud & Ethics Commitment</h3>
               </div>
-              <p className="text-xs text-sage/80 leading-relaxed">
+              <p className="text-xs text-[#DDE6D8]/85 leading-relaxed">
                 RELEAF rejects any use of de-inking technology to forge qualifications, falsify transaction documents, or create deceptive credentials.
               </p>
             </div>
 
             <Link
               href="/workspace"
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-lime text-forest font-bold text-xs hover:bg-white transition-all shrink-0"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-xs bg-[#D6FF52] text-[#123B2A] font-extrabold text-xs uppercase tracking-wider hover:bg-[#E5FF85] transition-all shrink-0 shadow-sm"
             >
               <span>Test Guard in Studio</span>
               <ArrowRight className="w-4 h-4" />

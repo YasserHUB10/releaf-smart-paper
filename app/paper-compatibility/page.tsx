@@ -45,15 +45,15 @@ export default function PaperCompatibilityPage() {
   return (
     <>
       <Navigation />
-      <main className="pt-28 pb-20 bg-[#F9F8F3] min-h-screen">
+      <main className="pt-28 pb-20 bg-[#F4F0E6] min-h-screen">
         <div className="container-narrow">
           {/* Header */}
-          <div className="text-center max-w-2xl mx-auto mb-14">
-            <span className="pill-badge mb-3">Hardware Matrix</span>
-            <h1 className="text-4xl sm:text-5xl font-black text-forest tracking-tight mb-4">
+          <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
+            <span className="lime-tag">HARDWARE MATRIX</span>
+            <h1 className="text-4xl sm:text-6xl font-black text-[#123B2A] tracking-tight">
               Paper Substrate & Size Compatibility
             </h1>
-            <p className="text-charcoal/70 text-base leading-relaxed">
+            <p className="text-[#626B63] text-sm sm:text-base leading-relaxed">
               Differentiating standard print capability from physical de-inking chamber tolerance.
             </p>
           </div>
@@ -62,10 +62,10 @@ export default function PaperCompatibilityPage() {
             {/* Left: Size & Substrate Selector */}
             <div className="lg:col-span-8 space-y-8">
               {/* Paper Sizes */}
-              <div className="bg-white p-7 rounded-3xl border border-black/5 shadow-xs">
-                <h2 className="text-base font-extrabold text-forest mb-4 flex items-center justify-between">
+              <div className="bg-[#FFFDF7] p-7 rounded-xs border-2 border-[#123B2A] shadow-md">
+                <h2 className="text-base font-black text-[#123B2A] mb-4 flex items-center justify-between">
                   <span>1. Select Paper Size</span>
-                  <span className="text-xs font-mono text-charcoal/50">ISO 216 & ANSI</span>
+                  <span className="text-xs font-mono text-[#626B63]">ISO 216 & ANSI</span>
                 </h2>
 
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
@@ -75,14 +75,14 @@ export default function PaperCompatibilityPage() {
                       <button
                         key={s.id}
                         onClick={() => setSize(s.id)}
-                        className={`p-3 rounded-2xl border text-center transition-all ${
+                        className={`p-3 rounded-xs border-2 text-center transition-all ${
                           isSelected
-                            ? "bg-forest text-white border-forest shadow-sm ring-2 ring-lime/40"
-                            : "bg-[#F9F8F3] hover:bg-white border-black/5 text-charcoal"
+                            ? "bg-[#123B2A] text-[#FFFDF7] border-[#123B2A] shadow-sm ring-2 ring-[#D6FF52]"
+                            : "bg-[#F4F0E6] hover:bg-[#FFFDF7] border-[#123B2A]/15 text-[#123B2A]"
                         }`}
                       >
                         <p className="font-extrabold text-sm">{s.label}</p>
-                        <p className={`text-[10px] mt-0.5 ${isSelected ? "text-sage" : "text-charcoal/50"}`}>
+                        <p className={`text-[10px] font-mono mt-0.5 ${isSelected ? "text-[#D6FF52]" : "text-[#626B63]"}`}>
                           {s.dims}
                         </p>
                       </button>
@@ -92,8 +92,8 @@ export default function PaperCompatibilityPage() {
               </div>
 
               {/* Substrate Types */}
-              <div className="bg-white p-7 rounded-3xl border border-black/5 shadow-xs">
-                <h2 className="text-base font-extrabold text-forest mb-4">
+              <div className="bg-[#FFFDF7] p-7 rounded-xs border-2 border-[#123B2A] shadow-md">
+                <h2 className="text-base font-black text-[#123B2A] mb-4">
                   2. Select Paper Material Substrate
                 </h2>
 
@@ -104,25 +104,25 @@ export default function PaperCompatibilityPage() {
                       <button
                         key={t.id}
                         onClick={() => setType(t.id)}
-                        className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between ${
+                        className={`p-4 rounded-xs border-2 text-left transition-all flex flex-col justify-between ${
                           isSelected
-                            ? "bg-forest text-white border-forest shadow-sm ring-2 ring-lime/40"
-                            : "bg-[#F9F8F3] hover:bg-white border-black/5 text-charcoal"
+                            ? "bg-[#123B2A] text-[#FFFDF7] border-[#123B2A] shadow-sm ring-2 ring-[#D6FF52]"
+                            : "bg-[#F4F0E6] hover:bg-[#FFFDF7] border-[#123B2A]/15 text-[#123B2A]"
                         }`}
                       >
-                        <div className="flex items-center justify-between mb-1">
+                        <div className="flex items-center justify-between mb-1.5">
                           <span className="font-extrabold text-xs sm:text-sm">{t.label}</span>
                           {t.deink ? (
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-green-500/20 text-green-300">
+                            <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-xs bg-[#287A50] text-[#FFFDF7]">
                               DE-INK READY
                             </span>
                           ) : (
-                            <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-300">
+                            <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-xs bg-[#991B1B] text-[#FFFDF7]">
                               PRINT ONLY
                             </span>
                           )}
                         </div>
-                        <p className={`text-[11px] leading-tight ${isSelected ? "text-sage/80" : "text-charcoal/60"}`}>
+                        <p className={`text-[11px] leading-tight ${isSelected ? "text-[#DDE6D8]" : "text-[#626B63]"}`}>
                           {t.note}
                         </p>
                       </button>
@@ -132,20 +132,20 @@ export default function PaperCompatibilityPage() {
               </div>
 
               {/* Print Preferences */}
-              <div className="bg-white p-7 rounded-3xl border border-black/5 shadow-xs">
-                <h2 className="text-base font-extrabold text-forest mb-4">
+              <div className="bg-[#FFFDF7] p-7 rounded-xs border-2 border-[#123B2A] shadow-md">
+                <h2 className="text-base font-black text-[#123B2A] mb-4">
                   3. Print & Restoration Preferences
                 </h2>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs font-mono">
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-charcoal/60 block mb-1">
+                    <label className="text-[10px] uppercase font-bold text-[#626B63] block mb-1">
                       Orientation
                     </label>
                     <select
                       value={orientation}
                       onChange={(e) => setOrientation(e.target.value)}
-                      className="w-full bg-[#F9F8F3] border border-black/10 rounded-xl p-2.5 font-semibold text-charcoal outline-none focus:border-primary"
+                      className="w-full bg-[#F4F0E6] border border-[#123B2A]/20 rounded-xs p-2.5 font-bold text-[#123B2A] outline-none"
                     >
                       <option value="portrait">Portrait</option>
                       <option value="landscape">Landscape</option>
@@ -153,99 +153,81 @@ export default function PaperCompatibilityPage() {
                   </div>
 
                   <div>
-                    <label className="text-[10px] uppercase font-bold text-charcoal/60 block mb-1">
-                      Duplex Feed
-                    </label>
-                    <select
-                      value={duplex}
-                      onChange={(e) => setDuplex(e.target.value)}
-                      className="w-full bg-[#F9F8F3] border border-black/10 rounded-xl p-2.5 font-semibold text-charcoal outline-none focus:border-primary"
-                    >
-                      <option value="single">Single Sided</option>
-                      <option value="duplex">Double Sided (Long Edge)</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="text-[10px] uppercase font-bold text-charcoal/60 block mb-1">
-                      Print Resolution
+                    <label className="text-[10px] uppercase font-bold text-[#626B63] block mb-1">
+                      Quality Profile
                     </label>
                     <select
                       value={quality}
                       onChange={(e) => setQuality(e.target.value)}
-                      className="w-full bg-[#F9F8F3] border border-black/10 rounded-xl p-2.5 font-semibold text-charcoal outline-none focus:border-primary"
+                      className="w-full bg-[#F4F0E6] border border-[#123B2A]/20 rounded-xs p-2.5 font-bold text-[#123B2A] outline-none"
                     >
-                      <option value="draft">Eco Draft (Fast)</option>
-                      <option value="normal">Standard 600 DPI</option>
-                      <option value="high">High Definition 1200 DPI</option>
+                      <option value="draft">Draft (Fast, low toner)</option>
+                      <option value="normal">Normal (Standard office)</option>
+                      <option value="high">High (Presentation quality)</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] uppercase font-bold text-[#626B63] block mb-1">
+                      Duplex Handling
+                    </label>
+                    <select
+                      value={duplex}
+                      onChange={(e) => setDuplex(e.target.value)}
+                      className="w-full bg-[#F4F0E6] border border-[#123B2A]/20 rounded-xs p-2.5 font-bold text-[#123B2A] outline-none"
+                    >
+                      <option value="single">Single-sided</option>
+                      <option value="duplex-long">Duplex (Flip Long Edge)</option>
+                      <option value="duplex-short">Duplex (Flip Short Edge)</option>
                     </select>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Right: Compatibility Assessment Card */}
-            <div className="lg:col-span-4 bg-forest text-white p-7 rounded-3xl shadow-lg space-y-6">
-              <div>
-                <span className="text-[10px] font-mono uppercase text-lime">Active Configuration</span>
-                <h3 className="text-xl font-black mt-1">Matrix Evaluation</h3>
-              </div>
+            {/* Right: Compatibility Diagnostic Card */}
+            <div className="lg:col-span-4 bg-[#FFFDF7] p-7 rounded-xs border-2 border-[#123B2A] shadow-md space-y-6 sticky top-28">
+              <h3 className="text-lg font-black text-[#123B2A] border-b border-[#123B2A]/15 pb-3">
+                Compatibility Diagnosis
+              </h3>
 
-              {/* Status Badge */}
-              <div
-                className={`p-4 rounded-2xl border text-xs leading-relaxed ${
-                  deinkCompatible
-                    ? "bg-green-950/60 border-green-500/50 text-green-200"
-                    : "bg-amber-950/60 border-amber-500/50 text-amber-200"
-                }`}
-              >
-                <div className="font-bold flex items-center gap-1.5 mb-1 text-sm">
-                  {deinkCompatible ? (
-                    <>
-                      <CheckCircle2 className="w-4 h-4 text-lime" />
-                      <span className="text-lime">De-inking Compatible</span>
-                    </>
-                  ) : (
-                    <>
-                      <AlertTriangle className="w-4 h-4 text-amber-400" />
-                      <span className="text-amber-400">Print Only Substrate</span>
-                    </>
-                  )}
+              <div className="space-y-4 text-xs font-mono">
+                <div className="flex justify-between items-center py-2 border-b border-[#123B2A]/10">
+                  <span className="text-[#626B63]">Selected Sheet:</span>
+                  <span className="font-bold text-[#123B2A]">{selectedSize?.label} ({selectedSize?.dims})</span>
                 </div>
-                <p className="text-[11px] opacity-90">
-                  {deinkCompatible
-                    ? `${selectedType?.label} supports photothermal laser dissolution without cellulose fibre breakdown.`
-                    : `${selectedType?.label} contains protective synthetic coats or chemical dyes incompatible with selective ink release.`}
-                </p>
-              </div>
 
-              {/* Specifications table */}
-              <div className="space-y-2.5 text-xs text-sage/80 pt-2 border-t border-white/10">
-                <div className="flex justify-between">
-                  <span>Selected Size:</span>
-                  <span className="font-bold text-white">{selectedSize?.label} ({selectedSize?.dims})</span>
+                <div className="flex justify-between items-center py-2 border-b border-[#123B2A]/10">
+                  <span className="text-[#626B63]">Material Class:</span>
+                  <span className="font-bold text-[#123B2A]">{selectedType?.label}</span>
                 </div>
-                <div className="flex justify-between">
-                  <span>Substrate Profile:</span>
-                  <span className="font-bold text-white">{selectedType?.label}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Orientation:</span>
-                  <span className="font-bold text-white capitalize">{orientation}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Recommended Max Cycles:</span>
-                  <span className="font-bold text-lime">{deinkCompatible ? "1–2 Cycles" : "0 Cycles (Disposable)"}</span>
+
+                <div className="p-4 rounded-xs border-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    {deinkCompatible ? (
+                      <CheckCircle2 className="w-5 h-5 text-[#287A50]" />
+                    ) : (
+                      <AlertTriangle className="w-5 h-5 text-[#991B1B]" />
+                    )}
+                    <span className="font-black text-sm uppercase">
+                      {deinkCompatible ? "De-Inking Permitted" : "De-Inking Incompatible"}
+                    </span>
+                  </div>
+                  <p className="text-[11px] font-sans leading-relaxed text-[#626B63]">
+                    {deinkCompatible
+                      ? "This substrate has verified cellulose bond strength capable of surviving targeted photothermal ink dissolution."
+                      : "Coated or ultra-thin stocks risk solvent bleeding or mechanical tear. This sheet will be handled for standard printing only."}
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-4 border-t border-white/10">
+              <div className="pt-2">
                 <Link
                   href="/workspace"
-                  className="w-full py-3 rounded-xl bg-lime hover:bg-white text-forest text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-md"
+                  className="flex items-center justify-center gap-2 w-full py-3.5 rounded-xs bg-[#123B2A] hover:bg-[#1B4E38] text-[#FFFDF7] font-bold text-xs uppercase tracking-wider transition-all shadow-sm"
                 >
-                  <span>Apply Settings in Studio</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <span>Apply Matrix to Studio</span>
+                  <ArrowRight className="w-4 h-4 text-[#D6FF52]" />
                 </Link>
               </div>
             </div>

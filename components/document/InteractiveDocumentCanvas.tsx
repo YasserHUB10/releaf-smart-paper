@@ -329,17 +329,17 @@ export default function InteractiveDocumentCanvas({
   };
 
   return (
-    <div className="flex flex-col h-full bg-[#0D1210] rounded-2xl border border-white/10 shadow-2xl overflow-hidden select-none">
+    <div className="flex flex-col h-full bg-[#123B2A] rounded-xs border-2 border-[#123B2A] shadow-2xl overflow-hidden select-none">
       {/* ── Studio Top Toolbar (Canva/Figma style) ── */}
-      <div className="flex items-center justify-between px-4 py-2 bg-[#151D18] border-b border-white/10 text-white flex-wrap gap-2 z-20 shrink-0">
+      <div className="flex items-center justify-between px-4 py-2 bg-[#17201B] border-b border-white/10 text-white flex-wrap gap-2 z-20 shrink-0">
         {/* Left: Mode Switchers & Tools */}
         <div className="flex items-center gap-1.5 flex-wrap">
           <button
             onClick={() => onModeChange("select")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xs text-xs font-bold transition-all ${
               activeMode === "select"
-                ? "bg-primary text-white shadow-sm ring-1 ring-lime/40"
-                : "text-sage/70 hover:bg-white/5 hover:text-white"
+                ? "bg-[#D6FF52] text-[#123B2A] shadow-sm ring-2 ring-[#D6FF52]"
+                : "text-[#DDE6D8]/70 hover:bg-white/10 hover:text-white"
             }`}
             title="Select & Move elements (V)"
           >
@@ -564,9 +564,9 @@ export default function InteractiveDocumentCanvas({
       </div>
 
       {/* ── Sub-bar: Document metadata & quick status ── */}
-      <div className="bg-[#101613] px-4 py-1.5 border-b border-white/5 flex items-center justify-between text-[11px] text-sage/60 shrink-0">
+      <div className="bg-[#123B2A] px-4 py-1.5 border-b border-white/10 flex items-center justify-between text-[11px] text-[#DDE6D8]/70 shrink-0">
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1 text-lime font-medium">
+          <span className="flex items-center gap-1 text-[#D6FF52] font-bold">
             <Sparkles className="w-3 h-3" />
             <span>Interactive Vector Canvas</span>
           </span>
@@ -575,7 +575,7 @@ export default function InteractiveDocumentCanvas({
           {deletedElements.length > 0 && (
             <>
               <span>•</span>
-              <span className="text-amber-400 font-medium">
+              <span className="text-[#D6FF52] font-bold">
                 {deletedElements.length} marked for de-inking
               </span>
             </>
@@ -724,15 +724,15 @@ export default function InteractiveDocumentCanvas({
                   textAlign: el.textAlign || "left",
                   color: isDeleted ? "#9ca3af" : el.color || "#202821",
                   backgroundColor: isSelected
-                    ? "rgba(40, 122, 80, 0.08)"
+                    ? "rgba(79, 91, 255, 0.08)"
                     : isDeleted
                     ? "rgba(239, 68, 68, 0.08)"
                     : "transparent",
                 }}
-                className={`group cursor-grab active:cursor-grabbing px-2 py-1 rounded transition-all duration-100 ${
+                className={`group cursor-grab active:cursor-grabbing px-2 py-1 rounded-xs transition-all duration-100 ${
                   isSelected
-                    ? "ring-2 ring-primary ring-offset-2 ring-offset-white shadow-md z-30"
-                    : "hover:ring-1 hover:ring-primary/40 z-10"
+                    ? "ring-2 ring-[#4F5BFF] ring-offset-2 ring-offset-white shadow-md z-30"
+                    : "hover:ring-1 hover:ring-[#4F5BFF]/40 z-10"
                 } ${
                   isDeleted
                     ? "line-through opacity-50 border border-dashed border-red-400 bg-red-50/50"
@@ -746,16 +746,16 @@ export default function InteractiveDocumentCanvas({
                   </span>
                 )}
 
-                {/* Canva-style Corner Selection Handles */}
+                {/* Canva-style Corner Selection Handles (Electric Lime & Ink Black) */}
                 {isSelected && (
                   <>
-                    <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nwse-resize" />
-                    <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nesw-resize" />
-                    <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nesw-resize" />
-                    <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-white border-2 border-primary rounded-full shadow cursor-nwse-resize" />
+                    <span className="absolute -top-1.5 -left-1.5 w-3 h-3 bg-[#D6FF52] border-2 border-[#123B2A] rounded-xs shadow cursor-nwse-resize" />
+                    <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-[#D6FF52] border-2 border-[#123B2A] rounded-xs shadow cursor-nesw-resize" />
+                    <span className="absolute -bottom-1.5 -left-1.5 w-3 h-3 bg-[#D6FF52] border-2 border-[#123B2A] rounded-xs shadow cursor-nesw-resize" />
+                    <span className="absolute -bottom-1.5 -right-1.5 w-3 h-3 bg-[#D6FF52] border-2 border-[#123B2A] rounded-xs shadow cursor-nwse-resize" />
 
                     {/* Quick Action Floating Pill (Canva style directly above element) */}
-                    <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-forest text-white px-2 py-0.5 rounded-lg shadow-lg flex items-center gap-1.5 text-[11px] whitespace-nowrap z-40 border border-white/20">
+                    <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-[#123B2A] text-[#FFFDF7] px-2.5 py-1 rounded-xs shadow-lg flex items-center gap-2 text-[11px] whitespace-nowrap z-40 border border-[#D6FF52]/30">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();

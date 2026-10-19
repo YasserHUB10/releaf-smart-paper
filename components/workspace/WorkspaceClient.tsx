@@ -223,15 +223,15 @@ function UploadZone({ onFile }: { onFile: (file: UploadedFile) => void }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[580px] p-8 text-center max-w-2xl mx-auto">
       <div className="relative mb-6">
-        <div className="w-20 h-20 rounded-3xl bg-forest/5 flex items-center justify-center text-primary border border-primary/20 shadow-inner">
-          <Upload className="w-8 h-8 animate-pulse text-primary" />
+        <div className="w-20 h-20 rounded-xs bg-[#123B2A] flex items-center justify-center text-[#D6FF52] border-2 border-[#123B2A] shadow-md">
+          <Upload className="w-8 h-8 text-[#D6FF52]" />
         </div>
-        <div className="absolute -bottom-1 -right-1 bg-lime text-forest text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+        <div className="absolute -bottom-2 -right-2 bg-[#D6FF52] text-[#123B2A] text-[10px] font-black px-2 py-0.5 rounded-xs shadow border border-[#123B2A]">
           CANVA EDITOR
         </div>
       </div>
 
-      <h2 className="text-2xl font-bold text-forest mb-2">
+      <h2 className="text-3xl font-black text-[#123B2A] tracking-tight mb-2">
         Upload Document to Interactive Studio
       </h2>
       <p className="text-sm text-charcoal/60 mb-6 max-w-md">
@@ -285,9 +285,9 @@ function UploadZone({ onFile }: { onFile: (file: UploadedFile) => void }) {
 
       <button
         onClick={handleDemoDoc}
-        className="mt-4 flex items-center gap-2 px-5 py-2.5 rounded-xl bg-forest text-lime text-xs font-semibold hover:bg-forest/90 transition-all shadow-sm hover:shadow"
+        className="mt-4 flex items-center gap-2 px-6 py-3.5 rounded-xs bg-[#123B2A] text-[#D6FF52] text-xs font-bold uppercase tracking-wider hover:bg-[#1B4E38] transition-all shadow-md hover:-translate-y-0.5"
       >
-        <Sparkles className="w-3.5 h-3.5" />
+        <Sparkles className="w-4 h-4 text-[#D6FF52]" />
         <span>Load Interactive Demo Document</span>
       </button>
 
@@ -568,16 +568,16 @@ export default function WorkspaceClient() {
       <div className="flex-1 flex overflow-hidden">
         {/* 1. Left Nav Strips (Canva Tabs) */}
         {uploaded && (
-          <aside className="w-16 bg-[#121814] border-r border-white/10 flex flex-col items-center py-3 gap-3 shrink-0 z-20 text-white">
+          <aside className="w-16 bg-[#17201B] border-r border-white/10 flex flex-col items-center py-3 gap-3 shrink-0 z-20 text-white">
             <button
               onClick={() => {
                 setActiveTab("text");
                 setLeftNavCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+              className={`w-11 h-11 rounded-xs flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition-all ${
                 activeTab === "text" && !leftNavCollapsed
-                  ? "bg-forest text-lime shadow-md border border-lime/30"
-                  : "text-sage/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-[#123B2A] text-[#D6FF52] shadow-md border border-[#D6FF52]"
+                  : "text-[#DDE6D8]/60 hover:bg-white/10 hover:text-white"
               }`}
               title="Text Elements"
             >
@@ -590,10 +590,10 @@ export default function WorkspaceClient() {
                 setActiveTab("elements");
                 setLeftNavCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+              className={`w-11 h-11 rounded-xs flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition-all ${
                 activeTab === "elements" && !leftNavCollapsed
-                  ? "bg-forest text-lime shadow-md border border-lime/30"
-                  : "text-sage/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-[#123B2A] text-[#D6FF52] shadow-md border border-[#D6FF52]"
+                  : "text-[#DDE6D8]/60 hover:bg-white/10 hover:text-white"
               }`}
               title="Shapes & Boxes"
             >
@@ -606,10 +606,10 @@ export default function WorkspaceClient() {
                 setActiveTab("layers");
                 setLeftNavCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+              className={`w-11 h-11 rounded-xs flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition-all ${
                 activeTab === "layers" && !leftNavCollapsed
-                  ? "bg-forest text-lime shadow-md border border-lime/30"
-                  : "text-sage/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-[#123B2A] text-[#D6FF52] shadow-md border border-[#D6FF52]"
+                  : "text-[#DDE6D8]/60 hover:bg-white/10 hover:text-white"
               }`}
               title="Document Layer Tree"
             >
@@ -622,10 +622,10 @@ export default function WorkspaceClient() {
                 setActiveTab("guard");
                 setLeftNavCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+              className={`w-11 h-11 rounded-xs flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition-all ${
                 activeTab === "guard" && !leftNavCollapsed
-                  ? "bg-forest text-lime shadow-md border border-lime/30"
-                  : "text-sage/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-[#123B2A] text-[#D6FF52] shadow-md border border-[#D6FF52]"
+                  : "text-[#DDE6D8]/60 hover:bg-white/10 hover:text-white"
               }`}
               title="DocumentGuard Security"
             >
@@ -638,10 +638,10 @@ export default function WorkspaceClient() {
                 setActiveTab("deinker");
                 setLeftNavCollapsed(false);
               }}
-              className={`w-11 h-11 rounded-xl flex flex-col items-center justify-center gap-1 text-[10px] font-medium transition-all ${
+              className={`w-11 h-11 rounded-xs flex flex-col items-center justify-center gap-1 text-[10px] font-bold transition-all ${
                 activeTab === "deinker" && !leftNavCollapsed
-                  ? "bg-forest text-lime shadow-md border border-lime/30"
-                  : "text-sage/60 hover:bg-white/5 hover:text-white"
+                  ? "bg-[#123B2A] text-[#D6FF52] shadow-md border border-[#D6FF52]"
+                  : "text-[#DDE6D8]/60 hover:bg-white/10 hover:text-white"
               }`}
               title="Physical De-Inker Simulator"
             >
@@ -652,7 +652,7 @@ export default function WorkspaceClient() {
             <div className="mt-auto flex flex-col gap-2">
               <button
                 onClick={handleRemove}
-                className="w-10 h-10 rounded-xl text-red-400 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+                className="w-10 h-10 rounded-xs text-red-400 hover:bg-red-500/20 flex items-center justify-center transition-colors"
                 title="Remove current document"
               >
                 <X className="w-4 h-4" />
