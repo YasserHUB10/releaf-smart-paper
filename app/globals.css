@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #F7F5ED;
+  --foreground: #202821;
+  --forest: #123B2A;
+  --primary: #287A50;
+  --cream: #F7F5ED;
+  --charcoal: #202821;
+  --sage: #DDE9D9;
+  --lime: #C5E86C;
+  --white: #FFFFFF;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-forest: var(--forest);
+  --color-primary: var(--primary);
+  --color-cream: var(--cream);
+  --color-charcoal: var(--charcoal);
+  --color-sage: var(--sage);
+  --color-lime: var(--lime);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  min-height: 100vh;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Focus styles */
+:focus-visible {
+  outline: 2px solid #287A50;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #DDE9D9;
+}
+::-webkit-scrollbar-thumb {
+  background: #287A50;
+  border-radius: 3px;
+}
+
+/* Selection */
+::selection {
+  background: #C5E86C;
+  color: #123B2A;
+}
+
+/* Utility classes */
+.container-narrow {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, #287A50, #C5E86C);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.sim-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: #FEF3C7;
+  color: #92400E;
+  border: 1px solid #FDE68A;
+  border-radius: 9999px;
+  padding: 0.125rem 0.5rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.status-green {
+  color: #166534;
+  background: #DCFCE7;
+  border: 1px solid #86EFAC;
+}
+.status-amber {
+  color: #92400E;
+  background: #FEF3C7;
+  border: 1px solid #FDE68A;
+}
+.status-red {
+  color: #991B1B;
+  background: #FEE2E2;
+  border: 1px solid #FECACA;
 }
