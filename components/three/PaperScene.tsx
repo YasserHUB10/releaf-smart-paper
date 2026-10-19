@@ -5,7 +5,7 @@ import { Canvas, useFrame } from "@react-three/fiber";
 import { Float, Environment, PerspectiveCamera } from "@react-three/drei";
 import * as THREE from "three";
 
-// A realistic paper sheet geometry with subtle details
+// A realistic paper sheet geometry with subtle minimal architectural details
 function PaperSheet({
   phase,
   position,
@@ -16,64 +16,65 @@ function PaperSheet({
   rotation: [number, number, number];
 }) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const lineRef = useRef<THREE.LineSegments>(null);
 
   useFrame((state) => {
     if (!meshRef.current) return;
     const t = state.clock.getElapsedTime();
-    meshRef.current.rotation.y = rotation[1] + Math.sin(t * 0.3) * 0.08;
-    meshRef.current.rotation.x = rotation[0] + Math.cos(t * 0.2) * 0.04;
+    meshRef.current.rotation.y = rotation[1] + Math.sin(t * 0.25) * 0.05;
+    meshRef.current.rotation.x = rotation[0] + Math.cos(t * 0.18) * 0.03;
   });
 
   const paperColor =
     phase === "original"
-      ? "#F0EBD8"
+      ? "#FAF9F5"
       : phase === "deinked"
-      ? "#FAF8F2"
-      : "#FDFCF8";
-  const inkOpacity = phase === "original" ? 0.9 : phase === "deinked" ? 0.05 : 0.85;
+      ? "#F0EEE7"
+      : "#FAF9F5";
+  const inkOpacity = phase === "original" ? 0.85 : phase === "deinked" ? 0.04 : 0.8;
 
   return (
     <group position={position}>
-      {/* Paper body */}
+      {/* Paper substrate body */}
       <mesh ref={meshRef} rotation={rotation} castShadow receiveShadow>
-        <boxGeometry args={[2.4, 3.2, 0.02]} />
+        <boxGeometry args={[2.5, 3.4, 0.015]} />
         <meshStandardMaterial
           color={paperColor}
-          roughness={0.85}
+          roughness={0.92}
           metalness={0.0}
         />
       </mesh>
-      {/* Text lines representation */}
-      {[...Array(8)].map((_, i) => (
+
+      {/* Clean typographic lines representation */}
+      {[...Array(7)].map((_, i) => (
         <mesh
           key={i}
           position={[
-            position[0] + (Math.random() * 0.4 - 0.2),
-            position[1] + 1.2 - i * 0.32,
-            position[2] + 0.012,
+            position[0] + (i % 2 === 0 ? 0.1 : -0.1),
+            position[1] + 1.1 - i * 0.35,
+            position[2] + 0.01,
           ]}
           rotation={rotation}
         >
-          <boxGeometry args={[1.6 + Math.random() * 0.4, 0.04, 0.001]} />
+          <boxGeometry args={[1.7 + (i % 3) * 0.2, 0.035, 0.001]} />
           <meshStandardMaterial
-            color="#1a1a2e"
+            color="#20231F"
             transparent
             opacity={inkOpacity}
           />
         </mesh>
       ))}
-      {/* Highlight region for de-inking (only on original) */}
+
+      {/* Coordinate highlight region for de-inking simulation */}
       {phase === "original" && (
         <mesh
-          position={[position[0], position[1] + 0.3, position[2] + 0.013]}
+          position={[position[0] - 0.1, position[1] + 0.05, position[2] + 0.012]}
           rotation={rotation}
         >
-          <boxGeometry args={[1.8, 0.42, 0.001]} />
+          <boxGeometry args={[1.9, 0.38, 0.001]} />
           <meshStandardMaterial
-            color="#C5E86C"
+            color="#777E62"
             transparent
-            opacity={0.35}
+            opacity={0.3}
           />
         </mesh>
       )}
@@ -81,50 +82,27 @@ function PaperSheet({
   );
 }
 
-// Animated leaf particle
-function Leaf3D({ delay }: { delay: number }) {
-  const ref = useRef<THREE.Mesh>(null);
-  useFrame((state) => {
-    if (!ref.current) return;
-    const t = state.clock.getElapsedTime() + delay;
-    ref.current.position.y = Math.sin(t * 0.5) * 0.3 - 1.5;
-    ref.current.position.x = Math.cos(t * 0.3) * 0.8 + 2;
-    ref.current.rotation.z = t * 0.5;
-    ref.current.rotation.y = t * 0.3;
-  });
-
-  return (
-    <mesh ref={ref} scale={0.15}>
-      <tetrahedronGeometry args={[0.5, 0]} />
-      <meshStandardMaterial color="#287A50" roughness={0.4} metalness={0.1} />
-    </mesh>
-  );
-}
-
 function Scene({ phase }: { phase: "original" | "deinked" | "restored" }) {
   return (
     <>
-      <PerspectiveCamera makeDefault position={[0, 0, 7]} fov={45} />
-      <ambientLight intensity={0.6} />
+      <PerspectiveCamera makeDefault position={[0, 0, 6.8]} fov={42} />
+      <ambientLight intensity={0.7} />
       <directionalLight
-        position={[5, 8, 5]}
-        intensity={1.2}
+        position={[4, 6, 4]}
+        intensity={1.1}
         castShadow
         shadow-mapSize={[512, 512]}
+        color="#FAF9F5"
       />
-      <directionalLight position={[-3, 2, -2]} intensity={0.3} color="#DDE9D9" />
+      <directionalLight position={[-3, 2, -1]} intensity={0.25} color="#E4E1D8" />
 
-      <Float speed={1.5} rotationIntensity={0.2} floatIntensity={0.4}>
+      <Float speed={1.2} rotationIntensity={0.15} floatIntensity={0.3}>
         <PaperSheet
           phase={phase}
           position={[0, 0, 0]}
-          rotation={[0.1, -0.2, 0.05]}
+          rotation={[0.08, -0.15, 0.04]}
         />
       </Float>
-
-      <Leaf3D delay={0} />
-      <Leaf3D delay={2} />
-      <Leaf3D delay={4} />
 
       <Environment preset="studio" />
     </>
@@ -134,20 +112,17 @@ function Scene({ phase }: { phase: "original" | "deinked" | "restored" }) {
 // Static SVG fallback when WebGL is unavailable
 function StaticFallback({ phase }: { phase: "original" | "deinked" | "restored" }) {
   return (
-    <div className="flex items-center justify-center w-full h-full bg-sage/30 rounded-2xl p-8">
+    <div className="flex items-center justify-center w-full h-full bg-[#E4E1D8]/40 rounded-xl p-8">
       <div className="text-center">
-        <div className="text-6xl mb-4" aria-hidden="true">
-          {phase === "original" ? "📄" : phase === "deinked" ? "⬜" : "✅"}
+        <div className="text-4xl mb-3 text-[#20231F]" aria-hidden="true">
+          {phase === "original" ? "📄" : phase === "deinked" ? "⬜" : "📑"}
         </div>
-        <p className="text-sm text-primary font-medium capitalize">
+        <p className="text-xs text-[#20231F] font-mono uppercase tracking-wider">
           {phase === "original"
             ? "Original Document"
             : phase === "deinked"
-            ? "De-inked Paper"
-            : "Restored Document"}
-        </p>
-        <p className="text-xs text-gray-500 mt-1">
-          3D view unavailable in this browser
+            ? "De-inked Substrate"
+            : "Restored Page"}
         </p>
       </div>
     </div>
@@ -173,7 +148,7 @@ export default function PaperScene() {
     const timer = setInterval(() => {
       i = (i + 1) % phases.length;
       setPhase(phases[i]);
-    }, 3000);
+    }, 3200);
     return () => clearInterval(timer);
   }, [isAnimating]);
 
@@ -190,18 +165,18 @@ export default function PaperScene() {
   }, []);
 
   const phaseLabels = {
-    original: "Original Document",
-    deinked: "De-Inking Process",
-    restored: "Restored Document",
+    original: "Phase 01: Scanned Document",
+    deinked: "Phase 02: Selective Ink Removal",
+    restored: "Phase 03: Precision Recycled Sheet",
   };
 
   return (
-    <div className="relative w-full h-full min-h-[400px]">
+    <div className="relative w-full h-full min-h-[380px]">
       {/* 3D Canvas or fallback */}
       {webglAvailable ? (
         <Canvas
           shadows
-          className="rounded-2xl"
+          className="rounded-xl"
           aria-label={`3D paper restoration illustration showing ${phaseLabels[phase]}`}
           role="img"
         >
@@ -211,20 +186,20 @@ export default function PaperScene() {
         <StaticFallback phase={phase} />
       )}
 
-      {/* Controls overlay */}
-      <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center gap-3">
-        {/* Phase indicator */}
+      {/* Minimal Studio Controls Overlay */}
+      <div className="absolute bottom-4 left-0 right-0 flex flex-col items-center gap-2.5">
+        {/* Phase indicator badge */}
         <div
-          className="bg-white/90 backdrop-blur-sm rounded-full px-4 py-1.5 text-xs font-semibold text-forest border border-sage shadow-sm"
+          className="bg-[#FAF9F5]/90 backdrop-blur-md rounded-md px-3 py-1 text-[11px] font-mono text-[#20231F] border border-[#20231F]/10 shadow-xs flex items-center gap-2"
           aria-live="polite"
           aria-atomic="true"
         >
-          <span className="sim-badge mr-2">SIMULATION</span>
-          {phaseLabels[phase]}
+          <span className="w-1.5 h-1.5 rounded-full bg-[#315D46]" />
+          <span>{phaseLabels[phase]}</span>
         </div>
 
-        {/* Phase buttons */}
-        <div className="flex gap-2" role="group" aria-label="Paper phase selection">
+        {/* Phase selector tabs */}
+        <div className="flex gap-1.5 bg-[#FAF9F5]/70 backdrop-blur-xs p-1 rounded-md border border-[#20231F]/5" role="group" aria-label="Paper phase selection">
           {(["original", "deinked", "restored"] as const).map((p) => (
             <button
               key={p}
@@ -233,28 +208,16 @@ export default function PaperScene() {
                 setIsAnimating(false);
               }}
               aria-pressed={phase === p}
-              className={`w-2.5 h-2.5 rounded-full transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
-                phase === p ? "bg-primary scale-125" : "bg-sage border border-primary/30"
+              className={`px-2 py-0.5 text-[10px] font-mono uppercase tracking-wider rounded transition-all ${
+                phase === p
+                  ? "bg-[#20231F] text-[#FAF9F5] font-semibold"
+                  : "text-[#575C53] hover:text-[#20231F]"
               }`}
-              aria-label={
-                p === "original"
-                  ? "Show original document"
-                  : p === "deinked"
-                  ? "Show de-inking process"
-                  : "Show restored document"
-              }
-            />
+            >
+              {p}
+            </button>
           ))}
         </div>
-
-        {/* Pause/Resume */}
-        <button
-          onClick={() => setIsAnimating((v) => !v)}
-          className="text-xs text-forest/60 hover:text-forest underline underline-offset-2 transition-colors"
-          aria-label={isAnimating ? "Pause animation" : "Resume animation"}
-        >
-          {isAnimating ? "Pause" : "Resume"} animation
-        </button>
       </div>
     </div>
   );

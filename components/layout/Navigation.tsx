@@ -3,17 +3,17 @@
 import Link from "next/link";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { Menu, X, Leaf, ArrowRight, Sparkles } from "lucide-react";
+import { Menu, X, ArrowRight } from "lucide-react";
 
 const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/features", label: "Features" },
-  { href: "/how-it-works", label: "How It Works" },
+  { href: "/", label: "Overview" },
+  { href: "/features", label: "Capabilities" },
+  { href: "/how-it-works", label: "Process" },
   { href: "/assistant", label: "AI Assistant" },
   { href: "/documentguard", label: "DocumentGuard" },
-  { href: "/paper-compatibility", label: "Compatibility" },
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/about", label: "About" },
+  { href: "/paper-compatibility", label: "Substrates" },
+  { href: "/dashboard", label: "Metrics" },
+  { href: "/about", label: "Philosophy" },
 ];
 
 export default function Navigation() {
@@ -22,7 +22,7 @@ export default function Navigation() {
   const pathname = usePathname();
 
   useEffect(() => {
-    const handler = () => setScrolled(window.scrollY > 15);
+    const handler = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handler, { passive: true });
     return () => window.removeEventListener("scroll", handler);
   }, []);
@@ -36,47 +36,50 @@ export default function Navigation() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const isWorkspace = pathname === "/workspace";
-
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-[#F9F8F3]/90 backdrop-blur-md shadow-xs border-b border-black/5"
-          : "bg-transparent"
+          ? "bg-[#F0EEE7]/92 backdrop-blur-md border-b border-[#20231F]/10 shadow-[0_1px_6px_rgba(23,26,23,0.04)]"
+          : "bg-transparent border-b border-transparent"
       }`}
     >
       <nav
         className="container-narrow flex items-center justify-between h-20"
         aria-label="Main navigation"
       >
-        {/* Brand Logo */}
+        {/* Brand Identity: Understated, Minimal, Architectural */}
         <Link
           href="/"
-          className="flex items-center gap-2.5 font-bold text-xl text-forest hover:opacity-90 transition-opacity group"
+          className="flex items-center gap-3 group focus-visible:outline-none"
           aria-label="RELEAF — Home"
         >
-          <span className="flex items-center justify-center w-9 h-9 rounded-xl bg-forest text-lime shadow-xs group-hover:scale-105 transition-transform">
-            <Leaf className="w-5 h-5 text-lime" aria-hidden="true" />
+          <span className="flex items-center justify-center w-8 h-8 rounded-md bg-[#20231F] text-[#F0EEE7] font-mono text-xs font-bold transition-transform group-hover:scale-95">
+            RL
           </span>
-          <span className="tracking-tight text-lg text-forest font-extrabold">RELEAF</span>
-          <span className="hidden sm:inline-block text-[10px] font-bold font-mono tracking-wider bg-primary/10 text-primary px-2 py-0.5 rounded-full border border-primary/20">
-            HACKATHON
-          </span>
+          <div className="flex flex-col">
+            <span className="tracking-tight text-base text-[#20231F] font-bold leading-tight flex items-center gap-1.5">
+              RELEAF
+              <span className="w-1.5 h-1.5 rounded-full bg-[#315D46]" />
+            </span>
+            <span className="text-[10px] font-mono text-[#777E62] uppercase tracking-wider">
+              Circular Paper R&D
+            </span>
+          </div>
         </Link>
 
-        {/* Desktop Links (Pill Bar) */}
-        <div className="hidden lg:flex items-center gap-1 bg-white/70 backdrop-blur-xs px-2.5 py-1.5 rounded-full border border-black/5 shadow-2xs">
+        {/* Desktop Links: Editorial text links with subtle stone hover */}
+        <div className="hidden lg:flex items-center gap-6">
           {navLinks.map(({ href, label }) => {
             const isActive = pathname === href;
             return (
               <Link
                 key={href}
                 href={href}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all ${
+                className={`text-xs tracking-tight transition-colors py-1 ${
                   isActive
-                    ? "bg-forest text-white shadow-xs"
-                    : "text-charcoal/70 hover:text-forest hover:bg-black/5"
+                    ? "font-bold text-[#20231F] border-b border-[#20231F]"
+                    : "font-medium text-[#575C53] hover:text-[#20231F]"
                 }`}
               >
                 {label}
@@ -85,36 +88,36 @@ export default function Navigation() {
           })}
         </div>
 
-        {/* Desktop Primary CTA */}
+        {/* Desktop Primary CTA: Deep Charcoal solid button with warm ivory text */}
         <div className="hidden lg:flex items-center gap-3">
           <Link
             href="/workspace"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary hover:bg-primary-hover text-white text-xs font-bold transition-all shadow-sm hover:shadow hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-md bg-[#20231F] hover:bg-[#171A17] text-[#FAF9F5] text-xs font-semibold tracking-wide transition-all shadow-sm hover:-translate-y-0.5 focus-visible:ring-2 focus-visible:ring-[#20231F]"
           >
-            <span>Open Studio</span>
-            <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+            <span>Open Workspace</span>
+            <ArrowRight className="w-3.5 h-3.5 text-[#A7B5A0]" aria-hidden="true" />
           </Link>
         </div>
 
-        {/* Mobile menu hamburger toggle */}
+        {/* Mobile menu toggle */}
         <div className="flex items-center gap-2 lg:hidden">
           <Link
             href="/workspace"
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-white text-xs font-bold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-[#20231F] text-[#FAF9F5] text-xs font-semibold"
           >
             Studio
           </Link>
           <button
-            className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/80 border border-black/10 text-charcoal hover:bg-white transition-colors"
+            className="flex items-center justify-center w-9 h-9 rounded-md bg-[#E4E1D8]/60 border border-[#20231F]/10 text-[#20231F] hover:bg-[#E4E1D8] transition-colors"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
             aria-controls="mobile-menu"
             aria-label={open ? "Close menu" : "Open menu"}
           >
             {open ? (
-              <X className="w-5 h-5" aria-hidden="true" />
+              <X className="w-4 h-4" aria-hidden="true" />
             ) : (
-              <Menu className="w-5 h-5" aria-hidden="true" />
+              <Menu className="w-4 h-4" aria-hidden="true" />
             )}
           </button>
         </div>
@@ -124,38 +127,36 @@ export default function Navigation() {
       {open && (
         <div
           id="mobile-menu"
-          className="lg:hidden bg-[#F9F8F3] border-b border-black/10 shadow-xl animate-in slide-in-from-top-2 duration-150"
-          role="navigation"
-          aria-label="Mobile navigation"
+          className="lg:hidden bg-[#F0EEE7] border-b border-[#20231F]/10 px-6 py-6 space-y-3"
         >
-          <div className="container-narrow py-5 space-y-1">
+          <div className="grid grid-cols-2 gap-2 pb-4 border-b border-[#20231F]/10">
             {navLinks.map(({ href, label }) => {
               const isActive = pathname === href;
               return (
                 <Link
                   key={href}
                   href={href}
-                  className={`block px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                    isActive
-                      ? "bg-forest text-white"
-                      : "text-charcoal hover:bg-black/5"
-                  }`}
                   onClick={() => setOpen(false)}
+                  className={`px-3 py-2 rounded text-xs transition-colors ${
+                    isActive
+                      ? "bg-[#20231F] text-[#FAF9F5] font-semibold"
+                      : "text-[#575C53] hover:text-[#20231F] hover:bg-[#E4E1D8]"
+                  }`}
                 >
                   {label}
                 </Link>
               );
             })}
-            <div className="pt-3 border-t border-black/10 mt-3">
-              <Link
-                href="/workspace"
-                className="flex items-center justify-center gap-2 w-full py-3 rounded-xl bg-primary text-white text-sm font-bold shadow-sm"
-                onClick={() => setOpen(false)}
-              >
-                <span>Launch Document Studio</span>
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
+          </div>
+          <div className="pt-2">
+            <Link
+              href="/workspace"
+              onClick={() => setOpen(false)}
+              className="flex items-center justify-center gap-2 w-full py-3 rounded-md bg-[#20231F] text-[#FAF9F5] font-semibold text-xs"
+            >
+              <span>Launch Studio Canvas</span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#A7B5A0]" />
+            </Link>
           </div>
         </div>
       )}
